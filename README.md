@@ -30,6 +30,6 @@ $$
 
 ## Conjugate Priors
 
-| Likelihood $P(x_i\| \theta)$ | Model parameters $\theta$ | Conjugate prior (and posterior) distribution $p(\theta, \Theta) = p(\theta, \Theta')$| Prior hyperparameters $\Theta$ | Posterior hyperparameters $ \Theta' $ | Posterior predictive $ p(\tilde{x} \| X, \Theta)$ |
+| Likelihood $P(x_i\| \theta)$ | Model parameters $\theta$ | Conjugate prior (and posterior) distribution $p(\theta, \Theta) = p(\theta, \Theta')$| Prior hyperparameters $\Theta$ | Posterior hyperparameters $\Theta'$ | Posterior predictive $p(\tilde{x} \| X, \Theta)$ |
 |-----|-----|-----|-----|-----|-----|
-|Normal with known variance $\sigma^2$| $\mu$ (mean) | Normal | $\mu_0, \sigma_0^2$ | $ \frac{1}{\frac{1}{\sigma_0^2} + \frac{n}{\sigma^2}}(\frac{\mu_0}{\sigma_0^2} + \frac{\sum_{i=1}^n x_i}{\sigma^2}), (\frac{1}{\sigma_0^2} + \frac{n}{\sigma^2})^{-1} $|$ \mathcal{N}(\tilde{x}\|{\mu_0}', {\sigma_0^2}' + \sigma^2) $|
+|Normal with known variance $\sigma^2$| $\mu$ (mean) | Normal | $\mu_0, \sigma_0^2$ | $\frac{1}{\frac{1}{\sigma_0^2} + \frac{n}{\sigma^2}}(\frac{\mu_0}{\sigma_0^2} + \frac{\sum_{i=1}^n x_i}{\sigma^2}), (\frac{1}{\sigma_0^2} + \frac{n}{\sigma^2})^{-1}$|$\mathcal{N}(\tilde{x}\|{\mu_0}', {\sigma_0^2}' + \sigma^2)$|
