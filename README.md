@@ -30,6 +30,18 @@ $$
 
 ## Conjugate Priors
 
-| Likelihood $P(x_i\| \theta)$ | Model parameters $\theta$ | Conjugate prior (and posterior) distribution $p(\theta, \Theta) = p(\theta, \Theta')$| Prior hyperparameters $\Theta$ | Posterior hyperparameters $\Theta'$ | Posterior predictive $p(\tilde{x} \| X, \Theta)$ |
+### Notation
+
+| Expression | Definition |
+|-----|-----|
+|$P(x_i \| \theta)$ | Probability of an observation given the model and model parameters.|
+|$\theta$| Unknown parameter for the likelihood model |
+|$p(\theta \| \Theta)$| This is the conjugate prior distribution. This models the probability of the model parameter given the prior hyperparameters.|
+|$p(\theta \| \Theta')$| This is the conjugate posterior distribution. This models the probability of the model parameters given the posterior hyperparameters.|
+|$\Theta$| The parameters for the prior distribution. The prior distribution is the expected outcome of a variable before you have any information about it. This is the initial information from the dataset, meaning the parameters are the sample statistics from the data.|
+|$\Theta'$| The parameters of the posterior distribution. This is the probabilitiy of some outcome given the evidence. 
+
+| Likelihood $P(x_i\| \theta)$ | Model parameters $\theta$ | Conjugate prior (and posterior) distribution $p(\theta \| \Theta) = p(\theta \| \Theta')$| Prior hyperparameters $\Theta$ | Posterior hyperparameters $\Theta'$ | Posterior predictive $p(\tilde{x} \| X, \Theta)$ |
 |-----|-----|-----|-----|-----|-----|
-|Normal with known variance $\sigma^2$| $\mu$ (mean) | Normal | $\mu_0, \sigma_0^2$ | $\frac{1}{\frac{1}{\sigma_0^2} + \frac{n}{\sigma^2}}(\frac{\mu_0}{\sigma_0^2} + \frac{\sum_{i=1}^n x_i}{\sigma^2}), (\frac{1}{\sigma_0^2} + \frac{n}{\sigma^2})^{-1}$|$\mathcal{N}(\tilde{x}\|{\mu_0}', {\sigma_0^2}' + \sigma^2)$|
+|Normal with known variance $\sigma^2$| $\mu$ (mean) | Normal | $\mu_0, \sigma_0^2$ | $\frac{1}{\frac{1}{\sigma_0^2} + \frac{n}{\sigma^2}}(\frac{\mu_0}{\sigma_0^2} + \frac{\sum_{i=1}^n x_i}{\sigma^2}),\\ (\frac{1}{\sigma_0^2} + \frac{n}{\sigma^2})^{-1}$|$\mathcal{N}(\tilde{x}\|{\mu_0}', {\sigma_0^2}' + \sigma^2)$|
+
