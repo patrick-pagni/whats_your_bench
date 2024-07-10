@@ -45,3 +45,25 @@ $$
 |-----|-----|-----|-----|-----|-----|
 |Normal with known variance $\sigma^2$| $\mu$ (mean) | Normal | $\mu_0, \sigma_0^2$ | $\frac{1}{\frac{1}{\sigma_0^2} + \frac{n}{\sigma^2}}(\frac{\mu_0}{\sigma_0^2} + \frac{\sum_{i=1}^n x_i}{\sigma^2}),\\ (\frac{1}{\sigma_0^2} + \frac{n}{\sigma^2})^{-1}$|$\mathcal{N}(\tilde{x}\|{\mu_0}', {\sigma_0^2}' + \sigma^2)$|
 
+## Potential distance metrics
+
+### Kullback-Leibler Divergence
+
+This is also known as relative entropy and l-divergence.
+
+Measures how probability distribution $P(x)$ differs from a second reference distribution $Q(x)$. Can be interpreted as how much one can expect to be surprised when using distribution $Q$ to model data which follows the actual distirbution $P$.
+
+For continuous random variables:
+
+$$
+D_{KL}(P||Q) = \int_{-\infty}^{\infty}p(x) \log{\frac{p(x)}{q(x)}}dx
+$$
+
+### KS-distance
+
+### Pick largest difference between two n-dimensional arrays (L-infinity distance)
+
+### Integral of the square between two surfaces
+
+### Calculate the area where two distributions disagree
+
