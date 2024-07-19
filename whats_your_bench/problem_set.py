@@ -1,26 +1,44 @@
-from distance import kl_divergence
+from whats_your_bench import conjugate_priors as cp
+from scipy import stats
+import pymc as pm
 
 class Problem():
 
-    def __init__(self, priors, posterior, data):
-        """
-        Init function for Problem class
+    def __init__(
+            self,
+            conjugate_prior,
+            ppl_priors,
+            sample_size,
+            data_distribution
+            ):
+        
+        self.data = data_distribution.rvs(size = sample_size)
 
-        Args:
-            priors: Prior distribution for PPL
-            posterior: True value for posterior given prior and data
-            data: Data from which posterior has been estimated.
-        """
-        self.priors = priors
-        self.posterior = posterior
-        self.data = data
+        self.conjugate_model = conjugate_prior
+        self.conjugate_model.find_predictive_posterior(self.data)
 
+        self.ppl_priors = ppl_priors
 
+class Problem1(Problem):
 
-    def distance(self, predicted, true, metric = None):
-        # TODO: Establish procedure for defining dynamic support range depending on PDF
-        # TODO: Ensure predicted and true are PDFs
-        assert metric is not None
+    def __init__(self):
+        super().__init__(
+            cp.NormalKnownVar(3, [5, 3]),
+            [0, 1],
+            10,
+            stats.norm(3, 4)
+        )
 
-        if metric = "kl_div":
-            return kl_divergence(true, predicted, -10, 10)
+        self.ppl_mu, self.ppl_sigma = self.ppl_priors
+
+    def _pymc_model(self):
+        with pm.Model() as m:
+
+            mu = pm.Normal("mu", mu = self.ppl_mu, sigma = self.ppl_sigma)
+            obs = pm.Normal("obs", mu = mu, sigma = self.conjugate_model.sigma, observed = self.data)
+
+            idata = pm.sample_prior_predictive()
+            idata.extend(pm.sample())
+            pm.sample_posterior_predictive(idata, extend_inferencedata=True)
+
+        return idata
