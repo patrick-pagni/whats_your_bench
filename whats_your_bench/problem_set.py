@@ -1,5 +1,6 @@
 from whats_your_bench import conjugate_priors as cp
 from scipy import stats
+import os
 
 """
 Import for PyMC
@@ -12,6 +13,11 @@ Imports for pyro
 import torch
 import pyro
 import pyro.distributions as pyro_dist
+
+"""
+Imports for Stan
+"""
+from cmdstanpy import CmdStanModel
 
 
 class Problem():
@@ -69,14 +75,14 @@ class Problem1(Problem):
 
             return float(idata.posterior["mu"].mean())
         
-    def _build_pyro_model(self):
+    def _setup_pyro_model(self):
         mu = pyro.sample("mu", pyro_dist.Normal(self.ppl_mu, self.ppl_sigma))
 
         with pyro.plate("data", self.data.shape[0]):
             pyro.sample("obs", pyro_dist.Normal(mu, self.conjugate_model.sigma), obs = torch.Tensor(self.data))
 
     def _pyro_model(self):
-        kernel = pyro.infer.NUTS(self._build_pyro_model)
+        kernel = pyro.infer.NUTS(self._setup_pyro_model)
 
         mcmc = pyro.infer.MCMC(kernel, num_samples = 1000, warmup_steps = 200)
         mcmc.run()
@@ -84,6 +90,20 @@ class Problem1(Problem):
         hmc_samples = {k: v.detach().cpu().numpy() for k, v in mcmc.get_samples().items()}
 
         return hmc_samples["mu"].mean()
+    
+    def _stan_model(self):
+
+        stan_file = os.path.join("../whats_your_bench/stan_models/normalKnownVar.stan")
+
+        model = CmdStanModel(stan_file = stan_file)
+        
+        stan_data = {
+            "N": self.data.shape[0],
+            "X": self.data
+        }
+
+        fit = model.sample(data = stan_data)
+        return fit.summary()
 
 
         

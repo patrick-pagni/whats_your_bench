@@ -1,14 +1,13 @@
+data {
+int<lower=0> N;
+array[N] real X;
+}
 
-    data {
-    int<lower=0> N;
-    array[N] real X;
-    }
+parameters {
+real mu;
+}
 
-    parameters {
-    real mu;
-    }
-
-    model {
-    mu ~ normal(0, 1);  // uniform prior on interval 0,1
-    X ~ normal(mu, 3);
-    }
+model {
+mu ~ normal(0, 1);  // uniform prior on interval 0,1
+X ~ normal(mu, 3);
+}
