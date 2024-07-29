@@ -1,4 +1,6 @@
 from whats_your_bench import conjugate_priors as cp
+from whats_your_bench import distance
+
 from scipy import stats
 import os
 
@@ -36,6 +38,14 @@ class Problem():
         self.conjugate_model.find_predictive_posterior(self.data)
 
         self.ppl_priors = ppl_priors
+
+    def get_distance(self, metric, p, q, support_lim):
+
+        if metric == "ks_test":
+            return distance.ks_test(p, q, support_lim)
+        
+        elif metric == "kl_divergence":
+            return distance.kl_divergence(p, q, support_lim)
 
 class Problem1(Problem):
 

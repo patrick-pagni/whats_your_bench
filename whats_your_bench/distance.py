@@ -1,4 +1,6 @@
 import numpy as np
+import torch
+from ddks.methods import adKS
 
 def _generate_array(start, end, n):
     # Generate an array with values from start to end with decreasing intervals
@@ -27,6 +29,18 @@ def integrate(function, space):
     return np.sum((y[1:] + y[:-1]) * h / 2)
 
 # calculate kullback leibler divergence using integrate function
-def kl_divergence(p, q, start, end):
+def kl_divergence(p, q, support_lim):
+    start, end = support_lim
     space = _pdf_space(start, end)
     return integrate(lambda x: p.pdf(x) * np.log(p.pdf(x) / q.pdf(x)), space)
+
+# Function to get N-dimensional ks distance
+# TODO: Implement significance test
+def ks_test(p, q, support_lim):
+
+    pred = torch.Tensor(p.rvs(1000))
+    true = torch.Tensor(q.rvs(1000))
+
+    a = adKS()
+
+    return a(pred, true, q, support_lim)
