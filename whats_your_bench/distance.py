@@ -38,9 +38,22 @@ def kl_divergence(p, q, support_lim):
 # TODO: Implement significance test
 def ks_test(p, q, support_lim):
 
-    pred = torch.Tensor(p.rvs(1000))
-    true = torch.Tensor(q.rvs(1000))
+    ks_distances = []
 
-    a = adKS()
+    for i in range(30):
 
-    return a(pred, true, q, support_lim)
+        try:
+            pred = torch.Tensor(p.rvs(100))
+            true = torch.Tensor(q.rvs(100))
+
+            if len(true.shape) == 1:
+                true = true.reshape(-1, 1)
+                pred = pred.reshape(-1, 1)
+
+            a = adKS()
+
+            ks_distances.append(a(pred, true, q, support_lim))
+        except:
+            pass
+
+    return sum(ks_distances)/len(ks_distances)

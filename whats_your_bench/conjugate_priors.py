@@ -10,7 +10,6 @@ class NormalKnownVar():
             ):
         
         self.prior_params = SimpleNamespace(mu = prior_params[0], sigma = prior_params[1])
-
         self.sigma = sigma
 
     def find_predictive_posterior(
@@ -29,6 +28,11 @@ class NormalKnownVar():
             mu = self.posterior_params.mu,
             sigma = self.posterior_params.sigma + self.sigma
         )
+
+        self.predictive_dist = stats.norm(
+            loc = self.posterior_predictive_params.mu,
+            scale = np.sqrt(self.posterior_predictive_params.sigma)
+            )
 
 class NormalKnownMean():
     def __init__(
