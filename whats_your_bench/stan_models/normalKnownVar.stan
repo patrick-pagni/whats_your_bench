@@ -1,6 +1,9 @@
 data {
 int<lower=0> N;
 array[N] real X;
+real prior_mu;
+real prior_sigma;
+real obs_sigma;
 }
 
 parameters {
@@ -8,6 +11,6 @@ real mu;
 }
 
 model {
-mu ~ normal(0, 1);  // uniform prior on interval 0,1
-X ~ normal(mu, 3);
+mu ~ normal(prior_mu, prior_sigma);
+X ~ normal(mu, obs_sigma);
 }
