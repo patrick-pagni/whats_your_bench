@@ -9,7 +9,7 @@ class NormalKnownVar():
             prior_params,
             ):
         
-        self.prior_params = SimpleNamespace(mu = prior_params[0], sigma = prior_params[1])
+        self.prior_params = SimpleNamespace(**prior_params)
         self.sigma = sigma
 
     def find_predictive_posterior(
@@ -41,10 +41,7 @@ class NormalKnownMean():
             prior_params
             ):
         
-        self.prior_params = SimpleNamespace(
-            alpha = prior_params[0],
-            beta = prior_params[1]
-        )
+        self.prior_params = SimpleNamespace(**prior_params)
 
         self.mu = mu
 
@@ -66,6 +63,12 @@ class NormalKnownMean():
             scale = np.sqrt(self.posterior_params.beta/self.posterior_params.alpha)
         )
 
+        self.predictive_dist = stats.t(
+            self.posterior_predictive_params.nu,
+            loc = self.posterior_predictive_params.loc,
+            scale = self.posterior_predictive_params.scale
+            )
+
 class MvNormalKnownCov():
 
     def __init__(
@@ -74,10 +77,7 @@ class MvNormalKnownCov():
             prior_params
             ):
         
-        self.prior_params = SimpleNamespace(
-            mu = prior_params[0],
-            sigma = prior_params[1]
-        )
+        self.prior_params = SimpleNamespace(**prior_params)
 
         self.sigma = sigma
 
@@ -98,6 +98,11 @@ class MvNormalKnownCov():
             sigma = self.posterior_params.sigma + self.sigma
         )
 
+        self.predictive_dist = stats.multivariate_normal(
+            mean = self.posterior_predictive_params.mu,
+            cov = self.posterior_predictive_params.sigma
+            )
+
 class MvNormalKnownMean():
     def __init__(
             self,
@@ -105,10 +110,7 @@ class MvNormalKnownMean():
             prior_params
             ):
         
-        self.prior_params = SimpleNamespace(
-            nu = prior_params[0],
-            psi = prior_params[1]
-        )
+        self.prior_params = SimpleNamespace(**prior_params)
 
         self.mu = mu
 
@@ -129,4 +131,10 @@ class MvNormalKnownMean():
             nu = self.posterior_params.nu - p + 1,
             loc = self.mu,
             psi = (1/(self.posterior_params.nu - p + 1)) * self.posterior_params.psi
+        )
+
+        self.predictive_dist = stats.multivariate_t(
+            self.posterior_predictive_params.nu,
+            loc = self.mu,
+            scale = self.posterior_predictive_params.psi
         )
