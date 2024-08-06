@@ -4,29 +4,41 @@ from ddks.methods import adKS
 
 def _generate_array(start, end, n):
     # Generate an array with values from start to end with decreasing intervals
-    if end == np.inf:
-        arr = np.cumsum(np.exp(np.linspace(0, 5, n)))
-        # No need to normalize to end value, since it is infinite
-        arr = (arr - arr[0])
-    else:
+    try:
+        d = start.shape[0]
+    except IndexError:
+        d = 1
+        start = np.array([start])
+        end = np.array([end])
+
+    limits = np.column_stack((start, end))
+    axes = []
+
+    for i in range(d):
         arr = np.cumsum(np.exp(-np.linspace(0, 5, n)))
-        # Normalize the array to ensure it ranges from start to end
-        arr = (arr - arr[0]) / (arr[-1] - arr[0]) * (end - start) + start
+        axes.append((arr - arr[0]) / (arr[-1] - arr[0]) * (limits[i, 1] - limits[i, 0]) + limits[i, 0])
 
-    return arr
+    return np.array([np.array(x) for x in list(zip(*axes))])
 
-def _pdf_space(start, end, n = 10000):
-    mean = np.array([start, end]).mean()
-    arr2 = _generate_array(mean, end, int(n/2))
+def _pdf_space(start, end, n = 10):
+    mean = np.array([start, end]).mean(axis = 0)
+
     arr1 = _generate_array(-mean, -start, int(n/2)) * -1
-    return np.concatenate([arr1[::-1], arr2])
+    arr2 = _generate_array(mean, end, int(n/2))
+
+    return np.concatenate([arr1, arr2[1:, :]])
 
 def integrate(function, space):
+
     y = function(space)
+    h = np.diff(space, axis = 0)
 
-    h = np.diff(space)
+    if y.shape[-1] != h.shape[-1]:
+        y = y.reshape(-1, 1)
 
-    return np.sum((y[1:] + y[:-1]) * h / 2)
+    y = np.hstack((h, y[1:]))
+
+    return np.sum(np.prod(y, axis = 1))
 
 # calculate kullback leibler divergence using integrate function
 def kl_divergence(p, q, support_lim):
