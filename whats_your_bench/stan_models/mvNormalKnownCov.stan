@@ -1,6 +1,6 @@
 data {
-int<lower=0> M;
 int<lower=0> N;
+int<lower=0> M;
 matrix[N, M] X;
 vector[M] prior_mu;
 matrix[M, M] prior_sigma;
