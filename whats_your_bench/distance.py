@@ -2,7 +2,7 @@ import numpy as np
 import torch
 from ddks.methods import adKS
 
-def _generate_array(start, end, n):
+def _generate_array(start, end, n, reverse = False):
     # Generate an array with values from start to end with decreasing intervals
     try:
         d = start.shape[0]
@@ -16,6 +16,8 @@ def _generate_array(start, end, n):
 
     for i in range(d):
         arr = np.cumsum(np.exp(-np.linspace(0, 5, n)))
+        if reverse:
+            arr = arr[::-1]
         axes.append((arr - arr[0]) / (arr[-1] - arr[0]) * (limits[i, 1] - limits[i, 0]) + limits[i, 0])
 
     return np.array([np.array(x) for x in list(zip(*axes))])
@@ -23,7 +25,7 @@ def _generate_array(start, end, n):
 def _pdf_space(start, end, n = 10):
     mean = np.array([start, end]).mean(axis = 0)
 
-    arr1 = _generate_array(-mean, -start, int(n/2)) * -1
+    arr1 = _generate_array(start, mean, int(n/2), reverse = True)
     arr2 = _generate_array(mean, end, int(n/2))
 
     return np.concatenate([arr1, arr2[1:, :]])
@@ -47,25 +49,23 @@ def kl_divergence(p, q, support_lim):
     return integrate(lambda x: p.pdf(x) * np.log(p.pdf(x) / q.pdf(x)), space)
 
 # Function to get N-dimensional ks distance
-# TODO: Implement significance test
 def ks_test(p, q, support_lim):
 
-    ks_distances = []
+    #ks_distances = np.zeros(10)
+    #ks_pvalues = np.zeros(10)
 
-    for i in range(30):
+    #for i in range(10):
 
-        try:
-            pred = torch.Tensor(p.rvs(100))
-            true = torch.Tensor(q.rvs(100))
+    pred = torch.Tensor(p.rvs(20))
+    true = torch.Tensor(q.rvs(20))
 
-            if len(true.shape) == 1:
-                true = true.reshape(-1, 1)
-                pred = pred.reshape(-1, 1)
+    if len(true.shape) == 1:
+        true = true.reshape(-1, 1)
+        pred = pred.reshape(-1, 1)
 
-            a = adKS()
+    a = adKS()
 
-            ks_distances.append(a(pred, true, q, support_lim))
-        except:
-            pass
+    ks_distance = a(pred, true, q, support_lim).item()
+    ks_pvalue = a.p_D()
 
-    return sum(ks_distances)/len(ks_distances)
+    return ks_distance, ks_pvalue
