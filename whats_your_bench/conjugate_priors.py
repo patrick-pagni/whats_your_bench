@@ -5,12 +5,12 @@ from types import SimpleNamespace
 class NormalKnownVar():
     def __init__(
             self,
-            sigma,
+            variance,
             prior_params,
             ):
         
         self.prior_params = SimpleNamespace(**prior_params)
-        self.sigma = sigma
+        self.sigma = variance
 
     def find_predictive_posterior(
             self,
@@ -37,13 +37,13 @@ class NormalKnownVar():
 class NormalKnownMean():
     def __init__(
             self,
-            mu,
+            mean,
             prior_params
             ):
         
         self.prior_params = SimpleNamespace(**prior_params)
 
-        self.mu = mu
+        self.mu = mean
 
     def find_predictive_posterior(
             self,
@@ -73,13 +73,13 @@ class MvNormalKnownCov():
 
     def __init__(
             self,
-            sigma,
+            covariance,
             prior_params
             ):
         
         self.prior_params = SimpleNamespace(**prior_params)
 
-        self.sigma = sigma
+        self.sigma = covariance
 
     def find_predictive_posterior(
             self,
@@ -106,13 +106,13 @@ class MvNormalKnownCov():
 class MvNormalKnownMean():
     def __init__(
             self,
-            mu,
+            mean,
             prior_params
             ):
         
         self.prior_params = SimpleNamespace(**prior_params)
 
-        self.mu = mu
+        self.mu = mean
 
     def find_predictive_posterior(
             self,
