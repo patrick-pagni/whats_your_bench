@@ -120,7 +120,7 @@ class MvNormalKnownMean():
         ):
 
         N = data.shape[0]
-        p = self.posterior_params.psi.shape[1]
+        p = self.prior_params.psi.shape[1]
 
         self.posterior_params = SimpleNamespace(
             nu = N + self.prior_params.nu,
@@ -134,7 +134,7 @@ class MvNormalKnownMean():
         )
 
         self.predictive_dist = stats.multivariate_t(
-            self.posterior_predictive_params.nu,
+            df = self.posterior_predictive_params.nu,
             loc = self.mu,
-            scale = self.posterior_predictive_params.psi
+            shape = self.posterior_predictive_params.psi
         )
