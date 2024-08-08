@@ -22,7 +22,7 @@ def _generate_array(start, end, n, reverse = False):
 
     return np.array([np.array(x) for x in list(zip(*axes))])
 
-def _pdf_space(start, end, n = 10):
+def _pdf_space(start, end, n = 50):
     mean = np.array([start, end]).mean(axis = 0)
 
     arr1 = _generate_array(start, mean, int(n/2), reverse = True)
@@ -37,6 +37,8 @@ def integrate(function, space):
 
     if y.shape[-1] != h.shape[-1]:
         y = y.reshape(-1, 1)
+    
+    y = np.abs(y)
 
     y = np.hstack((h, y[1:]))
 
