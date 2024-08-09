@@ -1,15 +1,18 @@
 data {
-int<lower=0> N;
-array[N] real X;
-real prior_sigma;
-real obs_mean;
+    int<lower=0> N;
+    array[N] real X;
+    real prior_nu;
+    real prior_sigma;
+    real obs_mean;
 }
 
 parameters {
-real<lower=0> sigma;
+    real<lower = 0> nu;
+    real<lower=0> sigma;
 }
 
 model {
-sigma ~ normal(0, prior_sigma);
-X ~ normal(obs_mean, sigma);
+    nu ~ normal(0, prior_nu);
+    sigma ~ normal(0, prior_sigma);
+    X ~ student_t(nu, obs_mean, sigma);
 }

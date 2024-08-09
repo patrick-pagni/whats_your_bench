@@ -25,14 +25,17 @@ def normal_variance(priors, variance, data):
     )
 
 
-def normal_variance(prior_sigma, mean, data):
+def normal_mean(priors, mean, data):
     stan_file = os.path.join("../whats_your_bench/stan_models/normalKnownMean.stan")
 
     model = CmdStanModel(stan_file = stan_file)
+
+    prior_nu, prior_sigma = priors
         
     stan_data = {
         "N": data.shape[0],
         "X": data,
+        "prior_nu": prior_nu,
         "prior_sigma": prior_sigma,
         "obs_mean": mean
     }
@@ -40,6 +43,7 @@ def normal_variance(prior_sigma, mean, data):
     fit = model.sample(data = stan_data)
 
     return SimpleNamespace(
+        df = fit.nu.mean(axis = 0),
         loc = mean,
         scale = fit.sigma.mean(axis = 0)
     )
@@ -71,19 +75,21 @@ def mvnormal_mean(priors, mean, data):
 
     model = CmdStanModel(stan_file = stan_file)
 
-    prior_lambda, prior_eta = priors
+    prior_beta, prior_eta, prior_nu = priors
     
     stan_data = {
         "N": data.shape[0],
         "M": data.shape[1],
         "X": data,
-        "prior_lambda": prior_lambda,
+        "prior_beta": prior_beta,
         "prior_eta": prior_eta,
+        "prior_nu": prior_nu,
         "obs_mean": mean
     }
 
     fit = model.sample(data = stan_data)
     return SimpleNamespace(
-        mean = mean,
-        cov = fit.Sigma.mean(axis = 0)
+        df = fit.nu.mean(),
+        loc = mean,
+        shape = fit.Psi.mean(axis = 0)
     )

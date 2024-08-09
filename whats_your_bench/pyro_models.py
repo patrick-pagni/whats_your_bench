@@ -25,9 +25,14 @@ def normal_variance(priors, variance, data):
         scale = variance
     )
 
-def normal_mean(prior_sigma, mean, data):
+def normal_mean(prior_nu, prior_sigma, mean, data):
 
     def _setup_pyro_model():
+
+        nu = pyro.sample(
+            "nu",
+            pyro_dist.HalfNormal(prior_nu)
+        )
 
         sigma = pyro.sample(
             "sigma",
@@ -35,18 +40,19 @@ def normal_mean(prior_sigma, mean, data):
         )
 
         with pyro.plate("data", data.shape[0]):
-            pyro.sample("obs", pyro_dist.Normal(mean, sigma), obs = torch.Tensor(data))
+            pyro.sample("obs", pyro_dist.StudentT(nu, mean, sigma), obs = torch.Tensor(data))
 
     kernel = pyro.infer.NUTS(_setup_pyro_model)
 
-    mcmc = pyro.infer.MCMC(kernel, num_smaples = 1000, warmup_steps = 200)
+    mcmc = pyro.infer.MCMC(kernel, num_samples = 1000, warmup_steps = 200)
     mcmc.run()
 
     hmc_samples = {k: v.detach().cpu().numpy() for k, v in mcmc.get_samples().items()}
 
     return SimpleNamespace(
-        loc = mean,
-        scale = hmc_samples["sigma"].mean(),
+        df = hmc_samples["nu"].mean(),
+        loc = mean
+        scale = hmc_samples["sigma"].mean()
     )
     
 
@@ -89,21 +95,26 @@ def mvnormal_mean(priors, mean, data):
     def _setup_pyro_model():
         N, M = data.shape
 
+        nu = pyro.sample("nu", pyro_dist.HalfNormal(prior_nu))
+
         # Sample the standard deviations with an exponential prior
-        sigma = pyro.sample("sigma", pyro_dist.Exponential(prior_lambda).expand([M]))
+        sigma = pyro.sample("sigma", pyro_dist.HalfCauchy(prior_beta).expand([M]))
 
         # Sample the correlation matrix using the LKJ prior
         Omega = pyro.sample("Omega", pyro_dist.LKJCholesky(M, prior_eta))
-        Omega = torch.mm(Omega, Omega.T)
 
         # Construct the covariance matrix
-        Sigma = torch.mm(torch.diag(sigma), torch.mm(Omega, torch.diag(sigma)))
+        scale = torch.mm(torch.diag(sigma), torch.mm(Omega, torch.diag(sigma)))
 
         # Observe data
         with pyro.plate("observations", N):
-            pyro.sample("obs", pyro_dist.MultivariateNormal(torch.Tensor(mean), covariance_matrix=Sigma), obs=torch.Tensor(data))
+            pyro.sample("obs", pyro_dist.MultivariateNormal(
+                df = nu,
+                loc = torch.Tensor(mean),
+                scale_tril=scale
+                ), obs=torch.Tensor(data))
 
-    prior_lambda, prior_eta = priors
+    prior_beta, prior_eta, prior_nu = priors
 
     kernel = pyro.infer.NUTS(_setup_pyro_model)
 
@@ -115,9 +126,10 @@ def mvnormal_mean(priors, mean, data):
     D = torch.diag(hmc_samples["sigma"].mean(axis = 0).sqrt())
     L = hmc_samples["Omega"].mean(axis = 0)
 
-    covariance = D @ L @ L.T @ D
+    shape = D @ L @ L.T @ D
 
     return SimpleNamespace(
-        mean = mean,
-        cov = covariance.numpy()
+        df = hmc_samples["nu"].mean(),
+        loc = mean,
+        shape = shape.numpy()
     )

@@ -17,16 +17,20 @@ def normal_variance(priors, variance, data):
             scale = variance
         )
     
-def normal_mean(prior_sigma, mean, data):
+def normal_mean(prior_nu, prior_sigma, mean, data):
 
     with pm.Model() as m:
-
+        # Priors for unknown model parameters
+        nu = pm.HalfNormal("nu", sigma = prior_nu)
         sigma = pm.HalfNormal("sigma", sigma = prior_sigma)
-        obs = pm.Normal("obs", mu = 0, sigma = sigma, observed = data)
+        
+        # Likelihood
+        obs = pm.StudentT("obs", nu = nu, mu = mean, sigma = sigma, observed = data)
 
         idata = pm.sample()
 
         return SimpleNamespace(
+            df = float(idata.posterior["nu"].mean()),
             loc = mean,
             scale = float(idata.posterior["sigma"].mean())
         )
@@ -64,23 +68,28 @@ def mvnormal_covariance(priors, covariance, data):
 
 def mvnormal_mean(priors, mean, data):
 
-    prior_lambda, prior_eta = priors
+    prior_beta, prior_eta, prior_nu = priors
     N, d = data.shape
 
     coords = {"axis": [f"x{i+1}" for i in range(d)], "axis_bis": [f"x{i+1}" for i in range(d)], "obs_id": np.arange(N)}
 
-    with pm.Model(coords=coords):
-        chol, corr, stds = pm.LKJCholeskyCov(
-            "chol", n=d, eta=prior_eta, sd_dist=pm.Exponential.dist(prior_lambda, shape = d)
+    with pm.Model(coords=coords) as model:
+
+        nu = pm.HalfNormal("nu", prior_nu)
+
+        chol, _, _ = pm.LKJCholeskyCov(
+            "chol", n=d, eta=prior_eta, sd_dist=pm.HalfCauchy.dist(beta = prior_beta, shape=d)
         )
-        cov = pm.Deterministic("covariance", chol.dot(chol.T), dims=("axis", "axis_bis"))
-        obs = pm.MvNormal("obs", mean, chol=chol, observed=data, dims=("obs_id", "axis"))
+        scale = pm.Deterministic("scale", chol.dot(chol.T), dims=("axis", "axis_bis"))
+
+        obs = pm.MvStudentT("obs", nu=nu, mu = mean, scale = scale, observed=data, dims=("obs_id", "axis"))
 
         idata = pm.sample(
             idata_kwargs={"dims": {"chol_stds": ["axis"], "chol_corr": ["axis", "axis_bis"]}},
         )
     
     return SimpleNamespace(
-        mean = mean,
-        cov = idata.posterior.covariance.mean(axis = 0).values
+        df = idata.nu.mean(axis = 0).values,
+        loc = mean,
+        shape = idata.posterior.scale.mean(axis = 0).mean(axis = 0).values
     )
