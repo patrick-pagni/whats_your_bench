@@ -38,13 +38,13 @@ class Problem():
     def get_support_lim(self):
         true_params = self.conjugate_model.posterior_predictive_params
 
-        if not true_params.mu.shape:
-            ks_lim = true_params.mu + (5*true_params.sigma)
-            kl_lim = [true_params.mu - (5*true_params.sigma), true_params.mu + (5*true_params.sigma)]
+        if isinstance(true_params.loc, (int, float)):
+            ks_lim = true_params.loc + (5*true_params.scale)
+            kl_lim = [true_params.loc - (5*true_params.scale), true_params.loc + (5*true_params.scale)]
 
         else:
-            ks_lim = (true_params.mu + (5*true_params.sigma.diagonal())).max()
-            kl_lim = [true_params.mu - (5*true_params.sigma.diagonal()), true_params.mu + (5*true_params.sigma.diagonal())]
+            ks_lim = (true_params.loc + (5*true_params.scale.diagonal())).max()
+            kl_lim = [true_params.loc - (5*true_params.scale.diagonal()), true_params.loc + (5*true_params.scale.diagonal())]
 
         self.support_lim = [ks_lim, kl_lim]
 
@@ -71,7 +71,7 @@ class Problem():
 
         self.get_support_lim()
 
-        for model in self.models.__dict__:
+        for i, model in enumerate(self.models.__dict__):
             ppl.append(model)
             p = self._model_dist(dist, getattr(self.models, model).__dict__)
             ks_distance, ks_score = self.get_distance("ks_test", p, q, self.support_lim[0])
@@ -117,6 +117,40 @@ class Problem2(Problem):
 
     def __init__(self):
         super().__init__(
+            cp.NormalKnownMean(
+                mean = 3,
+                prior_params = {"alpha": 1, "beta": 1}
+            ),
+            ppl_priors = [
+                1,
+                1
+            ],
+            sample_size = 10,
+            data_distribution=stats.norm(3, 1)
+        )
+
+        self.models.pymc_model = pymc_models.normal_mean(
+            self.ppl_priors,
+            self.conjugate_model.mu,
+            self.data
+            )
+
+        self.models.pyro_model = pyro_models.normal_mean(
+            self.ppl_priors,
+            self.conjugate_model.mu,
+            self.data
+        )
+
+        self.models.stan_model = stan_models.normal_mean(
+            self.ppl_priors,
+            self.conjugate_model.mu,
+            self.data
+        )
+
+class Problem3(Problem):
+
+    def __init__(self):
+        super().__init__(
             cp.MvNormalKnownCov(
                 covariance = np.eye(2).tolist(), 
                 prior_params={"mu": [3, 5], "sigma": np.eye(2).tolist()}
@@ -146,8 +180,43 @@ class Problem2(Problem):
             self.conjugate_model.sigma,
             self.data
         )
+    
+class Problem4(Problem):
 
-class Problem3(Problem):
+    def __init__(self):
+        super().__init__(
+            cp.MvNormalKnownMean(
+                mean = [3, 5], 
+                prior_params={"nu": 3, "psi": np.eye(2).tolist()}
+                ),
+            ppl_priors = [
+                10,
+                10,
+                10
+                ],
+            sample_size = 100,
+            data_distribution = stats.multivariate_normal([3, 5], np.eye(2).tolist())
+        )
+
+        self.models.pymc_model = pymc_models.mvnormal_mean(
+            self.ppl_priors,
+            self.conjugate_model.mu,
+            self.data
+        )
+
+        self.models.pyro_model = pyro_models.mvnormal_mean(
+            self.ppl_priors,
+            self.conjugate_model.mu,
+            self.data
+        )
+
+        self.models.stan_model = stan_models.mvnormal_mean(
+            self.ppl_priors,
+            self.conjugate_model.mu,
+            self.data
+        )
+
+class Problem5(Problem):
 
     def __init__(self):
         super().__init__(
@@ -185,7 +254,7 @@ class Problem3(Problem):
             self.data
         )
 
-class Problem4(Problem):
+class Problem6(Problem):
 
     def __init__(self):
         super().__init__(

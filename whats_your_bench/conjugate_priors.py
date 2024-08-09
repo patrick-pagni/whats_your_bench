@@ -25,13 +25,13 @@ class NormalKnownVar():
         )
 
         self.posterior_predictive_params = SimpleNamespace(
-            mu = self.posterior_params.mu,
-            sigma = self.posterior_params.sigma + self.sigma
+            loc = self.posterior_params.mu,
+            scale = np.sqrt(self.posterior_params.sigma + self.prior_params.sigma)
         )
 
         self.predictive_dist = stats.norm(
-            loc = self.posterior_predictive_params.mu,
-            scale = np.sqrt(self.posterior_predictive_params.sigma)
+            loc = self.posterior_predictive_params.loc,
+            scale = self.posterior_predictive_params.scale
             )
 
 class NormalKnownMean():
@@ -58,13 +58,13 @@ class NormalKnownMean():
         )
 
         self.posterior_predictive_params = SimpleNamespace(
-            nu = 2 * self.posterior_params.alpha,
+            df = 2 * self.posterior_params.alpha,
             loc = self.mu,
             scale = np.sqrt(self.posterior_params.beta/self.posterior_params.alpha)
         )
 
         self.predictive_dist = stats.t(
-            self.posterior_predictive_params.nu,
+            df = self.posterior_predictive_params.df,
             loc = self.posterior_predictive_params.loc,
             scale = self.posterior_predictive_params.scale
             )
@@ -94,13 +94,13 @@ class MvNormalKnownCov():
         )
 
         self.posterior_predictive_params = SimpleNamespace(
-            mu = self.posterior_params.mu,
-            sigma = self.posterior_params.sigma + self.sigma
+            loc = self.posterior_params.mu,
+            scale = self.posterior_params.sigma + self.sigma
         )
 
         self.predictive_dist = stats.multivariate_normal(
-            mean = self.posterior_predictive_params.mu,
-            cov = self.posterior_predictive_params.sigma
+            mean = self.posterior_predictive_params.loc,
+            cov = self.posterior_predictive_params.scale
             )
 
 class MvNormalKnownMean():
@@ -120,7 +120,7 @@ class MvNormalKnownMean():
         ):
 
         N = data.shape[0]
-        p = self.prior_params.psi.shape[1]
+        p = data.shape[1]
 
         self.posterior_params = SimpleNamespace(
             nu = N + self.prior_params.nu,
@@ -128,13 +128,13 @@ class MvNormalKnownMean():
         )
 
         self.posterior_predictive_params = SimpleNamespace(
-            nu = self.posterior_params.nu - p + 1,
+            df = self.posterior_params.nu - p + 1,
             loc = self.mu,
-            psi = (1/(self.posterior_params.nu - p + 1)) * self.posterior_params.psi
+            scale = (1/(self.posterior_params.nu - p + 1)) * self.posterior_params.psi
         )
 
         self.predictive_dist = stats.multivariate_t(
-            df = self.posterior_predictive_params.nu,
+            df = self.posterior_predictive_params.df,
             loc = self.mu,
-            shape = self.posterior_predictive_params.psi
+            shape = self.posterior_predictive_params.scale
         )

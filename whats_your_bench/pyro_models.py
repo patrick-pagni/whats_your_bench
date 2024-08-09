@@ -25,7 +25,9 @@ def normal_variance(priors, variance, data):
         scale = variance
     )
 
-def normal_mean(prior_nu, prior_sigma, mean, data):
+def normal_mean(priors, mean, data):
+
+    prior_nu, prior_sigma = priors
 
     def _setup_pyro_model():
 
@@ -51,7 +53,7 @@ def normal_mean(prior_nu, prior_sigma, mean, data):
 
     return SimpleNamespace(
         df = hmc_samples["nu"].mean(),
-        loc = mean
+        loc = mean,
         scale = hmc_samples["sigma"].mean()
     )
     
@@ -108,7 +110,7 @@ def mvnormal_mean(priors, mean, data):
 
         # Observe data
         with pyro.plate("observations", N):
-            pyro.sample("obs", pyro_dist.MultivariateNormal(
+            pyro.sample("obs", pyro_dist.MultivariateStudentT(
                 df = nu,
                 loc = torch.Tensor(mean),
                 scale_tril=scale
@@ -129,7 +131,7 @@ def mvnormal_mean(priors, mean, data):
     shape = D @ L @ L.T @ D
 
     return SimpleNamespace(
-        df = hmc_samples["nu"].mean(),
+        df = hmc_samples["nu"].mean().item(),
         loc = mean,
         shape = shape.numpy()
     )

@@ -17,7 +17,9 @@ def normal_variance(priors, variance, data):
             scale = variance
         )
     
-def normal_mean(prior_nu, prior_sigma, mean, data):
+def normal_mean(priors, mean, data):
+
+    prior_nu, prior_sigma = priors
 
     with pm.Model() as m:
         # Priors for unknown model parameters
@@ -71,13 +73,17 @@ def mvnormal_mean(priors, mean, data):
     prior_beta, prior_eta, prior_nu = priors
     N, d = data.shape
 
-    coords = {"axis": [f"x{i+1}" for i in range(d)], "axis_bis": [f"x{i+1}" for i in range(d)], "obs_id": np.arange(N)}
+    coords = {
+        "axis": [f"x{i+1}" for i in range(d)],
+        "axis_bis": [f"x{i+1}" for i in range(d)],
+        "obs_id": np.arange(N)
+        }
 
     with pm.Model(coords=coords) as model:
 
         nu = pm.HalfNormal("nu", prior_nu)
 
-        chol, _, _ = pm.LKJCholeskyCov(
+        chol, corr, stds = pm.LKJCholeskyCov(
             "chol", n=d, eta=prior_eta, sd_dist=pm.HalfCauchy.dist(beta = prior_beta, shape=d)
         )
         scale = pm.Deterministic("scale", chol.dot(chol.T), dims=("axis", "axis_bis"))
@@ -86,10 +92,11 @@ def mvnormal_mean(priors, mean, data):
 
         idata = pm.sample(
             idata_kwargs={"dims": {"chol_stds": ["axis"], "chol_corr": ["axis", "axis_bis"]}},
+            cores = 1
         )
     
     return SimpleNamespace(
-        df = idata.nu.mean(axis = 0).values,
+        df = idata.posterior.nu.mean().values,
         loc = mean,
         shape = idata.posterior.scale.mean(axis = 0).mean(axis = 0).values
     )
