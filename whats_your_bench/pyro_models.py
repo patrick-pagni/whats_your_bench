@@ -58,7 +58,7 @@ def normal_mean(priors, mean, data):
     return SimpleNamespace(
         df = hmc_samples["nu"].mean(),
         loc = mean,
-        scale = hmc_samples["sigma"].mean()
+        scale = hmc_samples["sigma"].mean().item()
     )
     
 @timer

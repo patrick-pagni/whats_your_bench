@@ -29,10 +29,7 @@ class NormalKnownVar():
             scale = np.sqrt(self.posterior_params.sigma + self.prior_params.sigma)
         )
 
-        self.predictive_dist = stats.norm(
-            loc = self.posterior_predictive_params.loc,
-            scale = self.posterior_predictive_params.scale
-            )
+        self.predictive_dist = stats.norm
 
 class NormalKnownMean():
     def __init__(
@@ -63,11 +60,7 @@ class NormalKnownMean():
             scale = np.sqrt(self.posterior_params.beta/self.posterior_params.alpha)
         )
 
-        self.predictive_dist = stats.t(
-            df = self.posterior_predictive_params.df,
-            loc = self.posterior_predictive_params.loc,
-            scale = self.posterior_predictive_params.scale
-            )
+        self.predictive_dist = stats.t
 
 class MvNormalKnownCov():
 
@@ -94,14 +87,11 @@ class MvNormalKnownCov():
         )
 
         self.posterior_predictive_params = SimpleNamespace(
-            loc = self.posterior_params.mu,
-            scale = self.posterior_params.sigma + self.sigma
+            mean = self.posterior_params.mu,
+            cov = self.posterior_params.sigma + self.sigma
         )
 
-        self.predictive_dist = stats.multivariate_normal(
-            mean = self.posterior_predictive_params.loc,
-            cov = self.posterior_predictive_params.scale
-            )
+        self.predictive_dist = stats.multivariate_normal
 
 class MvNormalKnownMean():
     def __init__(
@@ -130,11 +120,7 @@ class MvNormalKnownMean():
         self.posterior_predictive_params = SimpleNamespace(
             df = self.posterior_params.nu - p + 1,
             loc = self.mu,
-            scale = (1/(self.posterior_params.nu - p + 1)) * self.posterior_params.psi
+            shape = (1/(self.posterior_params.nu - p + 1)) * self.posterior_params.psi
         )
 
-        self.predictive_dist = stats.multivariate_t(
-            df = self.posterior_predictive_params.df,
-            loc = self.mu,
-            shape = self.posterior_predictive_params.scale
-        )
+        self.predictive_dist = stats.multivariate_t

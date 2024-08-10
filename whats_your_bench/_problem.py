@@ -36,6 +36,18 @@ class Problem():
     def get_support_lim(self):
         true_params = self.conjugate_model.posterior_predictive_params
 
+        if "mean" in true_params.__dict__.keys():
+            true_params = SimpleNamespace(
+                loc = true_params.mean,
+                scale = true_params.cov
+            )
+
+        if "shape" in true_params.__dict__.keys():
+            true_params = SimpleNamespace(
+                loc = true_params.loc,
+                scale = true_params.shape
+            )
+
         if isinstance(true_params.loc, (int, float)):
             ks_lim = true_params.loc + (5*true_params.scale)
             kl_lim = [true_params.loc - (5*true_params.scale), true_params.loc + (5*true_params.scale)]
@@ -58,7 +70,7 @@ class Problem():
         elif metric == "kl_divergence":
             return distance.kl_divergence(p, q, support_lim)
         
-    def evaluate_models(self, dist):
+    def evaluate_models(self):
 
         ppl = []
         ks_distances = []
@@ -69,7 +81,12 @@ class Problem():
 
         ppl_times = self.times.__dict__.values()
 
-        q = self.conjugate_model.predictive_dist
+        dist = self.conjugate_model.predictive_dist
+
+        q = self._model_dist(
+            dist,
+            self.conjugate_model.posterior_predictive_params.__dict__
+        )
 
         self.get_support_lim()
 

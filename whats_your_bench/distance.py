@@ -62,8 +62,8 @@ def ks_test(p, q, support_lim):
 
     #for i in range(10):
 
-    pred = torch.Tensor(p.rvs(20))
-    true = torch.Tensor(q.rvs(20))
+    pred = p.rvs(100)
+    true = q.rvs(100)
 
     if len(true.shape) == 1:
         true = true.reshape(-1, 1)
