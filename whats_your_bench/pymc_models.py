@@ -1,7 +1,10 @@
+from whats_your_bench.utils import timer
+
 import pymc as pm
 import numpy as np
 from types import SimpleNamespace
 
+@timer
 def normal_variance(priors, variance, data):
 
     prior_mu, prior_sigma = priors
@@ -16,7 +19,8 @@ def normal_variance(priors, variance, data):
             loc = float(idata.posterior["mu"].mean()),
             scale = variance
         )
-    
+
+@timer
 def normal_mean(priors, mean, data):
 
     prior_nu, prior_sigma = priors
@@ -38,6 +42,7 @@ def normal_mean(priors, mean, data):
         )
 
 
+@timer
 def mvnormal_covariance(priors, covariance, data):
 
     prior_mu, prior_sigma = priors
@@ -68,6 +73,7 @@ def mvnormal_covariance(priors, covariance, data):
     )
 
 
+@timer
 def mvnormal_mean(priors, mean, data):
 
     prior_beta, prior_eta, prior_nu = priors

@@ -1,3 +1,5 @@
+from whats_your_bench.utils import timer
+
 import numpy as np
 import torch
 from ddks.methods import adKS
@@ -45,12 +47,14 @@ def integrate(function, space):
     return np.sum(np.prod(y, axis = 1))
 
 # calculate kullback leibler divergence using integrate function
+@timer
 def kl_divergence(p, q, support_lim):
     start, end = support_lim
     space = _pdf_space(start, end)
     return integrate(lambda x: p.pdf(x) * np.log(p.pdf(x) / q.pdf(x)), space)
 
 # Function to get N-dimensional ks distance
+@timer
 def ks_test(p, q, support_lim):
 
     #ks_distances = np.zeros(10)

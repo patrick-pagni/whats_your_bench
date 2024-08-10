@@ -1,7 +1,10 @@
+from whats_your_bench.utils import timer
+
 import os
 from cmdstanpy import CmdStanModel
 from types import SimpleNamespace
 
+@timer
 def normal_variance(priors, variance, data):
     stan_file = os.path.join("../whats_your_bench/stan_models/normalKnownVar.stan")
 
@@ -24,7 +27,7 @@ def normal_variance(priors, variance, data):
         scale = variance
     )
 
-
+@timer
 def normal_mean(priors, mean, data):
     stan_file = os.path.join("../whats_your_bench/stan_models/normalKnownMean.stan")
 
@@ -48,6 +51,7 @@ def normal_mean(priors, mean, data):
         scale = fit.sigma.mean(axis = 0)
     )
 
+@timer
 def mvnormal_covariance(priors, covariance, data):
     stan_file = os.path.join("../whats_your_bench/stan_models/mvNormalKnownCov.stan")
 
@@ -70,6 +74,7 @@ def mvnormal_covariance(priors, covariance, data):
         cov = covariance
     )
 
+@timer
 def mvnormal_mean(priors, mean, data):
     stan_file = os.path.join("../whats_your_bench/stan_models/mvNormalKnownMean.stan")
 

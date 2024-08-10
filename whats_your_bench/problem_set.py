@@ -1,86 +1,14 @@
 from whats_your_bench import conjugate_priors as cp
-from whats_your_bench import distance
+from whats_your_bench._problem import Problem
 
-from scipy import stats
 import numpy as np
-from types import SimpleNamespace
-import pandas as pd
+from scipy import stats
+import time
 
 """
 Import models
 """
 from whats_your_bench import pymc_models, pyro_models, stan_models
-
-
-class Problem():
-
-    def __init__(
-            self,
-            conjugate_prior,
-            ppl_priors,
-            sample_size,
-            data_distribution
-            ):
-        
-        self.data = data_distribution.rvs(size = sample_size)
-
-        self.conjugate_model = conjugate_prior
-        self.conjugate_model.find_predictive_posterior(self.data)
-
-        self.ppl_priors = ppl_priors
-
-        self.models = SimpleNamespace(
-            pymc_model = None,
-            pyro_model = None,
-            stan_model = None
-        )
-
-    def get_support_lim(self):
-        true_params = self.conjugate_model.posterior_predictive_params
-
-        if isinstance(true_params.loc, (int, float)):
-            ks_lim = true_params.loc + (5*true_params.scale)
-            kl_lim = [true_params.loc - (5*true_params.scale), true_params.loc + (5*true_params.scale)]
-
-        else:
-            ks_lim = (true_params.loc + (5*true_params.scale.diagonal())).max()
-            kl_lim = [true_params.loc - (5*true_params.scale.diagonal()), true_params.loc + (5*true_params.scale.diagonal())]
-
-        self.support_lim = [ks_lim, kl_lim]
-
-    def _model_dist(self, dist, params):
-
-        return dist(**params)
-
-    def get_distance(self, metric, p, q, support_lim):
-
-        if metric == "ks_test":
-            return distance.ks_test(p, q, support_lim)
-        
-        elif metric == "kl_divergence":
-            return distance.kl_divergence(p, q, support_lim)
-        
-    def evaluate_models(self, dist):
-
-        ppl = []
-        ks_distances = []
-        ks_scores = []
-        kl_div = []
-
-        q = self.conjugate_model.predictive_dist
-
-        self.get_support_lim()
-
-        for i, model in enumerate(self.models.__dict__):
-            ppl.append(model)
-            p = self._model_dist(dist, getattr(self.models, model).__dict__)
-            ks_distance, ks_score = self.get_distance("ks_test", p, q, self.support_lim[0])
-            ks_distances.append(ks_distance)
-            ks_scores.append(ks_score)
-            kl_div.append(self.get_distance("kl_divergence", p, q, self.support_lim[1]))
-        
-        self.results = pd.DataFrame(zip(ppl, ks_distances, ks_scores, kl_div), columns = ["Language", "KS Distance", "KS Score", "KL Divergence"])
-    
 
 class Problem1(Problem):
 
@@ -95,19 +23,20 @@ class Problem1(Problem):
             data_distribution=stats.norm(3, 1)
         )
 
-        self.models.pymc_model = pymc_models.normal_variance(
+        self.models.pymc_model, self.times.pymc_model = pymc_models.normal_variance(
             self.ppl_priors,
             self.conjugate_model.sigma,
             self.data
             )
+        
 
-        self.models.pyro_model = pyro_models.normal_variance(
+        self.models.pyro_model, self.times.pyro_model = pyro_models.normal_variance(
             self.ppl_priors,
             self.conjugate_model.sigma,
             self.data
         )
 
-        self.models.stan_model = stan_models.normal_variance(
+        self.models.stan_model, self.times.stan_model = stan_models.normal_variance(
             self.ppl_priors,
             self.conjugate_model.sigma,
             self.data
@@ -129,19 +58,19 @@ class Problem2(Problem):
             data_distribution=stats.norm(3, 1)
         )
 
-        self.models.pymc_model = pymc_models.normal_mean(
+        self.models.pymc_model, self.times.pymc_model = pymc_models.normal_mean(
             self.ppl_priors,
             self.conjugate_model.mu,
             self.data
             )
 
-        self.models.pyro_model = pyro_models.normal_mean(
+        self.models.pyro_model, self.times.pyro_model = pyro_models.normal_mean(
             self.ppl_priors,
             self.conjugate_model.mu,
             self.data
         )
 
-        self.models.stan_model = stan_models.normal_mean(
+        self.models.stan_model, self.times.stan_model = stan_models.normal_mean(
             self.ppl_priors,
             self.conjugate_model.mu,
             self.data
@@ -163,19 +92,19 @@ class Problem3(Problem):
             data_distribution = stats.multivariate_normal([3, 5], np.eye(2).tolist())
         )
 
-        self.models.pymc_model = pymc_models.mvnormal_covariance(
+        self.models.pymc_model, self.times.pymc_model = pymc_models.mvnormal_covariance(
             self.ppl_priors,
             self.conjugate_model.sigma,
             self.data
         )
 
-        self.models.pyro_model = pyro_models.mvnormal_covariance(
+        self.models.pyro_model, self.times.pyro_model = pyro_models.mvnormal_covariance(
             self.ppl_priors,
             self.conjugate_model.sigma,
             self.data
         )
 
-        self.models.stan_model = stan_models.mvnormal_covariance(
+        self.models.stan_model, self.times.stan_model = stan_models.mvnormal_covariance(
             self.ppl_priors,
             self.conjugate_model.sigma,
             self.data
@@ -198,19 +127,19 @@ class Problem4(Problem):
             data_distribution = stats.multivariate_normal([3, 5], np.eye(2).tolist())
         )
 
-        self.models.pymc_model = pymc_models.mvnormal_mean(
+        self.models.pymc_model, self.times.pymc_model = pymc_models.mvnormal_mean(
             self.ppl_priors,
             self.conjugate_model.mu,
             self.data
         )
 
-        self.models.pyro_model = pyro_models.mvnormal_mean(
+        self.models.pyro_model, self.times.pyro_model = pyro_models.mvnormal_mean(
             self.ppl_priors,
             self.conjugate_model.mu,
             self.data
         )
 
-        self.models.stan_model = stan_models.mvnormal_mean(
+        self.models.stan_model, self.times.stan_model = stan_models.mvnormal_mean(
             self.ppl_priors,
             self.conjugate_model.mu,
             self.data
@@ -236,19 +165,19 @@ class Problem5(Problem):
             data_distribution = stats.multivariate_normal([3.3, 5.1, 3.7], np.eye(3).tolist())
         )
 
-        self.models.pymc_model = pymc_models.mvnormal_covariance(
+        self.models.pymc_model, self.times.pymc_model = pymc_models.mvnormal_covariance(
             self.ppl_priors,
             self.conjugate_model.sigma,
             self.data
         )
 
-        self.models.pyro_model = pyro_models.mvnormal_covariance(
+        self.models.pyro_model, self.times.pyro_model = pyro_models.mvnormal_covariance(
             self.ppl_priors,
             self.conjugate_model.sigma,
             self.data
         )
 
-        self.models.stan_model = stan_models.mvnormal_covariance(
+        self.models.stan_model, self.times.stan_model = stan_models.mvnormal_covariance(
             self.ppl_priors,
             self.conjugate_model.sigma,
             self.data
@@ -276,19 +205,19 @@ class Problem6(Problem):
             data_distribution = stats.multivariate_normal([8.0, 4.0, 9.0, 7.0, 1.0], np.eye(5).tolist())
         )
 
-        self.models.pymc_model = pymc_models.mvnormal_covariance(
+        self.models.pymc_model, self.times.pymc_model = pymc_models.mvnormal_covariance(
             self.ppl_priors,
             self.conjugate_model.sigma,
             self.data
         )
 
-        self.models.pyro_model = pyro_models.mvnormal_covariance(
+        self.models.pyro_model, self.times.pyro_model = pyro_models.mvnormal_covariance(
             self.ppl_priors,
             self.conjugate_model.sigma,
             self.data
         )
 
-        self.models.stan_model = stan_models.mvnormal_covariance(
+        self.models.stan_model, self.times.stan_model = stan_models.mvnormal_covariance(
             self.ppl_priors,
             self.conjugate_model.sigma,
             self.data

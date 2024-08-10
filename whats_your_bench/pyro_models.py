@@ -1,8 +1,11 @@
+from whats_your_bench.utils import timer
+
 import torch
 import pyro
 import pyro.distributions as pyro_dist
 from types import SimpleNamespace
 
+@timer
 def normal_variance(priors, variance, data):
 
     def _setup_pyro_model():
@@ -25,6 +28,7 @@ def normal_variance(priors, variance, data):
         scale = variance
     )
 
+@timer
 def normal_mean(priors, mean, data):
 
     prior_nu, prior_sigma = priors
@@ -57,7 +61,7 @@ def normal_mean(priors, mean, data):
         scale = hmc_samples["sigma"].mean()
     )
     
-
+@timer
 def mvnormal_covariance(priors, covariance, data):
 
     def _setup_pyro_model():
@@ -92,6 +96,7 @@ def mvnormal_covariance(priors, covariance, data):
         cov = covariance
     )
 
+@timer
 def mvnormal_mean(priors, mean, data):
 
     def _setup_pyro_model():
