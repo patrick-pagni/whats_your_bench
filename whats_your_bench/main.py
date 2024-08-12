@@ -37,5 +37,6 @@ for i, problem in enumerate(problems):
 results.reset_index(drop=True, inplace=True)
 
 now = datetime.datetime.now()
-results.to_markdown(f"results_{now}.md")
-results.to_latex(f"results_{now}.tex")
+results.to_markdown(f"../results/results_{now}.md")
+results.to_latex(f"../results/results_{now}.tex")
+results.to_csv(f"../results/results_{now}.csv")
