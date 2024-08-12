@@ -3,7 +3,6 @@ from whats_your_bench._problem import Problem
 
 import numpy as np
 from scipy import stats
-import time
 
 """
 Import models
@@ -20,7 +19,8 @@ class Problem01(Problem):
                  ),
             ppl_priors=[0, 1],
             sample_size=10,
-            data_distribution=stats.norm(3, 1)
+            data_distribution=stats.norm(3, 1),
+            random_state = 1
         )
 
     def run_models(self):
@@ -53,7 +53,8 @@ class Problem02(Problem):
                  ),
             ppl_priors=[0, 1],
             sample_size=50,
-            data_distribution=stats.norm(3, 1)
+            data_distribution=stats.norm(3, 1),
+            random_state = 2
         )
 
     def run_models(self):
@@ -86,7 +87,8 @@ class Problem03(Problem):
                  ),
             ppl_priors=[0, 1],
             sample_size=100,
-            data_distribution=stats.norm(3, 1)
+            data_distribution=stats.norm(3, 1),
+            random_state = 3
         )
 
     def run_models(self):
@@ -122,7 +124,8 @@ class Problem04(Problem):
                 1
             ],
             sample_size = 10,
-            data_distribution=stats.norm(3, 1)
+            data_distribution=stats.norm(3, 1),
+            random_state = 4
         )
 
     def run_models(self):
@@ -157,7 +160,8 @@ class Problem05(Problem):
                 1
             ],
             sample_size = 50,
-            data_distribution=stats.norm(3, 1)
+            data_distribution=stats.norm(3, 1),
+            random_state = 5
         )
 
     def run_models(self):
@@ -192,7 +196,8 @@ class Problem06(Problem):
                 1
             ],
             sample_size = 100,
-            data_distribution=stats.norm(3, 1)
+            data_distribution=stats.norm(3, 1),
+            random_state = 6
         )
 
     def run_models(self):
@@ -227,7 +232,8 @@ class Problem07(Problem):
                 np.eye(2).tolist()
                 ],
             sample_size = 10,
-            data_distribution = stats.multivariate_normal([3, 5], np.eye(2).tolist())
+            data_distribution = stats.multivariate_normal([3, 5], np.eye(2).tolist()),
+            random_state = 7
         )
 
     def run_models(self):
@@ -262,7 +268,8 @@ class Problem08(Problem):
                 np.eye(2).tolist()
                 ],
             sample_size = 50,
-            data_distribution = stats.multivariate_normal([3, 5], np.eye(2).tolist())
+            data_distribution = stats.multivariate_normal([3, 5], np.eye(2).tolist()),
+            random_state = 8
         )
     
     def run_models(self):
@@ -297,7 +304,8 @@ class Problem09(Problem):
                 np.eye(2).tolist()
                 ],
             sample_size = 100,
-            data_distribution = stats.multivariate_normal([3, 5], np.eye(2).tolist())
+            data_distribution = stats.multivariate_normal([3, 5], np.eye(2).tolist()),
+            random_state = 9
         )
 
     def run_models(self):
@@ -332,7 +340,8 @@ class Problem10(Problem):
                 np.eye(5).tolist()
                 ],
             sample_size = 100,
-            data_distribution = stats.multivariate_normal([3, 5, 3, 7, 4], np.eye(5).tolist())
+            data_distribution = stats.multivariate_normal([3, 5, 3, 7, 4], np.eye(5).tolist()),
+            random_state = 10
         )
 
     def run_models(self):
@@ -367,7 +376,8 @@ class Problem11(Problem):
                 np.eye(7).tolist()
                 ],
             sample_size = 100,
-            data_distribution = stats.multivariate_normal([3, 5, 3, 7, 4, 8, 9], np.eye(7).tolist())
+            data_distribution = stats.multivariate_normal([3, 5, 3, 7, 4, 8, 9], np.eye(7).tolist()),
+            random_state = 11
         )
 
     def run_models(self):
@@ -402,7 +412,8 @@ class Problem12(Problem):
                 np.eye(10).tolist()
                 ],
             sample_size = 100,
-            data_distribution = stats.multivariate_normal([3, 5, 3, 7, 4, 8, 9, 3, 2, 3], np.eye(10).tolist())
+            data_distribution = stats.multivariate_normal([3, 5, 3, 7, 4, 8, 9, 3, 2, 3], np.eye(10).tolist()),
+            random_state = 12
         )
 
     def run_models(self):

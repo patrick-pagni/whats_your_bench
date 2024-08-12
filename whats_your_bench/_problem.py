@@ -1,5 +1,4 @@
 from whats_your_bench import distance
-from whats_your_bench.utils import timer
 
 from types import SimpleNamespace
 import pandas as pd
@@ -11,10 +10,14 @@ class Problem():
             conjugate_prior,
             ppl_priors,
             sample_size,
-            data_distribution
+            data_distribution,
+            random_state
             ):
         
-        self.data = data_distribution.rvs(size = sample_size)
+        self.data = data_distribution.rvs(
+            size = sample_size,
+            seed = random_state
+            )
 
         self.conjugate_model = conjugate_prior
         self.conjugate_model.find_predictive_posterior(self.data)
@@ -49,12 +52,12 @@ class Problem():
             )
 
         if isinstance(true_params.loc, (int, float)):
-            ks_lim = true_params.loc + (5*true_params.scale)
-            kl_lim = [true_params.loc - (5*true_params.scale), true_params.loc + (5*true_params.scale)]
+            ks_lim = true_params.loc + (10*true_params.scale)
+            kl_lim = [true_params.loc - (10*true_params.scale), true_params.loc + (10*true_params.scale)]
 
         else:
-            ks_lim = (true_params.loc + (5*true_params.scale.diagonal())).max()
-            kl_lim = [true_params.loc - (5*true_params.scale.diagonal()), true_params.loc + (5*true_params.scale.diagonal())]
+            ks_lim = (true_params.loc + (10*true_params.scale.diagonal())).max()
+            kl_lim = [true_params.loc - (10*true_params.scale.diagonal()), true_params.loc + (10*true_params.scale.diagonal())]
 
         self.support_lim = [ks_lim, kl_lim]
 
@@ -62,10 +65,10 @@ class Problem():
 
         return dist(**params)
 
-    def get_distance(self, metric, p, q, support_lim):
+    def get_distance(self, metric, p, q, support_lim, method = 'all'):
 
         if metric == "ks_test":
-            return distance.ks_test(p, q, support_lim)
+            return distance.ks_test(p, q, support_lim, self.random_state, method = method)
         
         elif metric == "kl_divergence":
             return distance.kl_divergence(p, q, support_lim)
@@ -73,9 +76,16 @@ class Problem():
     def evaluate_models(self):
 
         ppl = []
-        ks_distances = []
-        ks_scores = []
-        ks_exe_times = []
+
+
+        ks_distances_all = []
+        ks_scores_all = []
+        ks_exe_times_all = []
+
+        ks_distances_ss = []
+        ks_scores_ss = []
+        ks_exe_times_ss = []
+
         kl_divergences = []
         kl_exe_times = []
 
@@ -91,13 +101,33 @@ class Problem():
         self.get_support_lim()
 
         for i, model in enumerate(self.models.__dict__):
+
             ppl.append(model)
             p = self._model_dist(dist, getattr(self.models, model).__dict__)
-            ks_results, ks_exe_time = self.get_distance("ks_test", p, q, self.support_lim[0])
-            ks_distance, ks_score = ks_results
-            ks_distances.append(ks_distance)
-            ks_scores.append(ks_score)
-            ks_exe_times.append(ks_exe_time)
+
+            ks_results_all, ks_exe_time_all = self.get_distance(
+                "ks_test",
+                p,
+                q,
+                self.support_lim[0]
+                )
+            
+            ks_distance_all, ks_score_all = ks_results_all
+            ks_distances_all.append(ks_distance_all)
+            ks_scores_all.append(ks_score_all)
+            ks_exe_times_all.append(ks_exe_time_all)
+
+            ks_results_ss, ks_exe_time_ss = self.get_distance(
+                "ks_test",
+                p,
+                q,
+                self.support_lim[0],
+                method = "subsample")
+            
+            ks_distance_ss, ks_score_ss = ks_results_ss
+            ks_distances_ss.append(ks_distance_ss)
+            ks_scores_ss.append(ks_score_ss)
+            ks_exe_times_ss.append(ks_exe_time_ss)
 
             kl_div, kl_exe_time = self.get_distance("kl_divergence", p, q, self.support_lim[1])
             kl_divergences.append(kl_div)
@@ -107,9 +137,9 @@ class Problem():
             zip(
                 ppl,
                 ppl_times,
-                ks_distances,
-                ks_scores,
-                ks_exe_times,
+                ks_distances_all,
+                ks_scores_all,
+                ks_exe_times_all,
                 kl_divergences,
                 kl_exe_times
                 ), 

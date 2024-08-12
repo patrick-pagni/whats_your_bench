@@ -15,6 +15,7 @@ problems = [cls_obj for cls_name, cls_obj in inspect.getmembers(sys.modules['wha
 results = pd.DataFrame()
 
 for i, problem in enumerate(problems):
+    print(f"Problem{i+1}")
     p = problem()
     p.run_models()
     success = False

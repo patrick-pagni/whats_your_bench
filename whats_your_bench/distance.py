@@ -24,7 +24,7 @@ def _generate_array(start, end, n, reverse = False):
 
     return np.array([np.array(x) for x in list(zip(*axes))])
 
-def _pdf_space(start, end, n = 50):
+def _pdf_space(start, end, n = 1000):
     mean = np.array([start, end]).mean(axis = 0)
 
     arr1 = _generate_array(start, mean, int(n/2), reverse = True)
@@ -55,21 +55,16 @@ def kl_divergence(p, q, support_lim):
 
 # Function to get N-dimensional ks distance
 @timer
-def ks_test(p, q, support_lim):
+def ks_test(p, q, support_lim, random_state, method = "all"):
 
-    #ks_distances = np.zeros(10)
-    #ks_pvalues = np.zeros(10)
-
-    #for i in range(10):
-
-    pred = p.rvs(100)
-    true = q.rvs(100)
+    pred = p.rvs(100, seed = random_state)
+    true = q.rvs(100, seed = random_state)
 
     if len(true.shape) == 1:
         true = true.reshape(-1, 1)
         pred = pred.reshape(-1, 1)
 
-    a = adKS()
+    a = adKS(method = method)
 
     ks_distance = a(pred, true, q, support_lim).item()
     ks_pvalue = a.p_D()
