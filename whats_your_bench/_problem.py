@@ -16,8 +16,10 @@ class Problem():
         
         self.data = data_distribution.rvs(
             size = sample_size,
-            seed = random_state
+            random_state = random_state
             )
+        
+        self.random_state = random_state
 
         self.conjugate_model = conjugate_prior
         self.conjugate_model.find_predictive_posterior(self.data)
@@ -140,15 +142,21 @@ class Problem():
                 ks_distances_all,
                 ks_scores_all,
                 ks_exe_times_all,
+                ks_distances_ss,
+                ks_scores_ss,
+                ks_exe_times_ss,
                 kl_divergences,
                 kl_exe_times
                 ), 
             columns = [
                 "Language",
                 "Model Exe Time",
-                "KS Distance",
-                "KS Score",
-                "KS Exe Time",
+                "KS Distance - All",
+                "KS Score - All",
+                "KS Exe Time - All",
+                "KS Distance - SS",
+                "KS Score - SS",
+                "KS Exe Time - SS",
                 "KL Divergence",
                 "KL Exe Time"
                 ]

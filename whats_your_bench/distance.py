@@ -57,8 +57,8 @@ def kl_divergence(p, q, support_lim):
 @timer
 def ks_test(p, q, support_lim, random_state, method = "all"):
 
-    pred = p.rvs(100, seed = random_state)
-    true = q.rvs(100, seed = random_state)
+    pred = p.rvs(100, random_state = random_state)
+    true = q.rvs(100, random_state = random_state)
 
     if len(true.shape) == 1:
         true = true.reshape(-1, 1)
