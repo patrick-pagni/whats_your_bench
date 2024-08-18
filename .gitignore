@@ -155,9 +155,9 @@ dmypy.json
 cython_debug/
 
 # Ignore CSVs; MD; Tex; .png
-*.csv
-*.md
-*.tex
+# *.csv
+# *.md
+# *.tex
 *.png
 
 # PyCharm
