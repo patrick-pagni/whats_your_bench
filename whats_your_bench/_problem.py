@@ -1,4 +1,4 @@
-from whats_your_bench import distance
+import distance
 
 from types import SimpleNamespace
 import pandas as pd

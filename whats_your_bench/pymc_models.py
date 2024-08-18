@@ -1,4 +1,4 @@
-from whats_your_bench.utils import timer
+from utils import timer
 
 import pymc as pm
 import numpy as np

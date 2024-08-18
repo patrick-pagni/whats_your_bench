@@ -1,10 +1,5 @@
+import problem_set
 import os
-import sys
-module_path = os.path.abspath(os.path.join('..'))
-if module_path not in sys.path:
-    sys.path.append(module_path)
-
-from whats_your_bench import problem_set
 import sys
 import inspect
 import pandas as pd
@@ -15,7 +10,7 @@ parser = argparse.ArgumentParser(description="CLI for what's your bench")
 parser.add_argument("problems", metavar="problems", type = int, nargs = "+", help = "Problems to be run by benchmarking suite")
 args = parser.parse_args()
 
-problems = [cls_obj for cls_name, cls_obj in inspect.getmembers(sys.modules['whats_your_bench.problem_set']) if inspect.isclass(cls_obj)][1:]
+problems = [cls_obj for cls_name, cls_obj in inspect.getmembers(sys.modules['problem_set']) if inspect.isclass(cls_obj)][1:]
 
 if args.problems:
      problems = [problem for i, problem in enumerate(problems) if i+1 in args.problems]

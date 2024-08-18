@@ -1,5 +1,5 @@
-from whats_your_bench import conjugate_priors as cp
-from whats_your_bench._problem import Problem
+import conjugate_priors as cp
+from _problem import Problem
 
 import numpy as np
 from scipy import stats
@@ -7,7 +7,7 @@ from scipy import stats
 """
 Import models
 """
-from whats_your_bench import pymc_models, pyro_models, stan_models
+import pymc_models, pyro_models, stan_models
 
 class Problem01(Problem):
 
