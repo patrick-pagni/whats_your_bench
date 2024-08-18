@@ -46,7 +46,10 @@ for i, problem in enumerate(problems):
 
 results.reset_index(drop=True, inplace=True)
 
+path = "../results"
+os.makedirs(path, exist_ok=True) 
+
 now = datetime.datetime.now()
-results.to_markdown(f"../results/results_{now}.md")
-results.to_latex(f"../results/results_{now}.tex")
-results.to_csv(f"../results/results_{now}.csv")
+results.to_markdown(f"{path}/results_{now}.md")
+results.to_latex(f"{path}/results_{now}.tex")
+results.to_csv(f"{path}/results_{now}.csv")
