@@ -24,8 +24,9 @@ results = pd.DataFrame()
 
 for i, problem in enumerate(problems):
 
-    print(f"Problem{i+1}")
     p = problem()
+    print(type(p).__name__)
+
     p.run_models()
     success = False
     retries = 0
@@ -40,7 +41,7 @@ for i, problem in enumerate(problems):
             else:
                 raise RuntimeError
 
-    p.results.insert(loc = 0, column = "Problem #", value = [i+1]*p.results.shape[0])
+    p.results.insert(loc = 0, column = "Problem #", value = [type(p).__name__]*p.results.shape[0])
     results = pd.concat([results, p.results], axis = 0)
 
 results.reset_index(drop=True, inplace=True)
