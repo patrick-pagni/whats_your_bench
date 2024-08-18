@@ -1,0 +1,9 @@
+numpy
+scipy
+torch
+torchvision
+torchaudio
+pyro-ppl
+cmdstanpy
+pandas
+tabulate

@@ -1,69 +1,56 @@
-# README
+# Benchmarking Probabilistic Programming Languages
 
-File to eventually serve as the readme for the project.
+*Patrick Pagni*
 
-For now, let's just try to outline what the project is trying to achieve.
+*230246906*
 
-There are a class of programming languages called probabilistic programming languages. Examples of these include:
+This code is accompanied by the research paper submitted for grading over Turnitin.
 
-- [pymc](https://www.pymc.io/welcome.html)
-- [stan](https://mc-stan.org/)
+## Installation instructions
 
-These languages/libraries enable the user to build Bayesian models easily, and fit them using Markov chain Monte Carlo methods.
+1. Create new conda env using this tool
 
-## PyMC3 Notes
+Conda env is recommended as it allows for easy istallation of PyMC
 
-To introduce model definition, fitting, and posterior analysis, we first consider a simple Bayesian linear regression model with normally-distributed priors for the parameters. We are interested in predicting outcomes $Y$ as normally-distributed observations with an expected value $\mu$ that is a linear function of two predictor variables, $X_1$ and $X_2$:
+```python
+conda create -c conda-forge -n <ENV_NAME> "pymc>=5"
+```
 
-$$
-Y \sim \mathcal{N}(\mu, \sigma^2)\\
-\mu = \alpha + \beta_1X_1 + \beta_2X_2
-$$
+**n.b Apple Silicon: when creating your venv for; create it with this command:**
 
-where $\alpha$ is the intercept, and $\beta_i$ is the coefficient for covariate $X_i$, while $\sigma$ represents the observation error. Since we are constructing a Bayesian model, we must assign a prior distribution to the unknown variables in the model. We choose zero-mean normal priors with variance of 100 for both regression coefficients, which corresponds to weak information regarding the true parameter values. We choose a half-normal distribution (normal distribution bounded at zero) as the prior for $\sigma$.
+```python
+conda create -c conda-forge -n <ENV_NAME> "pymc>=5" "libblas=*=*accelerate"
+```
 
-$$
-\alpha \sim \mathcal{N}(0, 100)\\
-\beta_i \sim \mathcal{N}(0,100)\\
-\sigma \sim |\mathcal{N}(0, 100)|
-$$
+2. Install core packages from requirements file
 
-## Conjugate Priors
+```python
+pip install -r requirements.txt
+```
 
-### Notation
+3. Install DDKS package
 
-| Expression | Definition |
-|-----|-----|
-|$P(x_i \| \theta)$ | Probability of an observation given the model and model parameters.|
-|$\theta$| Unknown parameter for the likelihood model |
-|$p(\theta \| \Theta)$| This is the conjugate prior distribution. This models the probability of the model parameter given the prior hyperparameters.|
-|$p(\theta \| \Theta')$| This is the conjugate posterior distribution. This models the probability of the model parameters given the posterior hyperparameters.|
-|$\Theta$| The parameters for the prior distribution. The prior distribution is the expected outcome of a variable before you have any information about it. This is the initial information from the dataset, meaning the parameters are the sample statistics from the data.|
-|$\Theta'$| The parameters of the posterior distribution. This is the probabilitiy of some outcome given the evidence. 
+```python
+pip install git+https://github.com/patrick-pagni/DDKS
+```
 
-| Likelihood $P(x_i\| \theta)$ | Model parameters $\theta$ | Conjugate prior (and posterior) distribution $p(\theta \| \Theta) = p(\theta \| \Theta')$| Prior hyperparameters $\Theta$ | Posterior hyperparameters $\Theta'$ | Posterior predictive $p(\tilde{x} \| X, \Theta)$ |
-|-----|-----|-----|-----|-----|-----|
-|Normal with known variance $\sigma^2$| $\mu$ (mean) | Normal | $\mu_0, \sigma_0^2$ | $\frac{1}{\frac{1}{\sigma_0^2} + \frac{n}{\sigma^2}}(\frac{\mu_0}{\sigma_0^2} + \frac{\sum_{i=1}^n x_i}{\sigma^2}),\\ (\frac{1}{\sigma_0^2} + \frac{n}{\sigma^2})^{-1}$|$\mathcal{N}(\tilde{x}\|{\mu_0}', {\sigma_0^2}' + \sigma^2)$|
+4. Install CmdStan by following the instructions given [here](https://arc.net/l/quote/jctmbzzm)
 
-## Potential distance metrics
+## Running the benchmarking suite
 
-### Kullback-Leibler Divergence
+After completing all the steps above, navigate to:
+`path-to-repository/whats_your_bench/whats_your_bench/`
 
-This is also known as relative entropy and l-divergence.
+And run:
 
-Measures how probability distribution $P(x)$ differs from a second reference distribution $Q(x)$. Can be interpreted as how much one can expect to be surprised when using distribution $Q$ to model data which follows the actual distirbution $P$.
+```python
+python main.py [optional integer arguments]
+```
 
-For continuous random variables:
+It should be noted that running `python main.py` will run all Problems in the problem set which is not recommended since it the high-dimensional problems take a long time to run. (Feel free to try it of course.) To avoid this I encourage supplying an integer argument from 1 - 21.
 
-$$
-D_{KL}(P||Q) = \int_{-\infty}^{\infty}p(x) \log{\frac{p(x)}{q(x)}}dx
-$$
+e.g.
 
-### KS-distance
-
-### Pick largest difference between two n-dimensional arrays (L-infinity distance)
-
-### Integral of the square between two surfaces
-
-### Calculate the area where two distributions disagree
-
+```python
+python main.py 1
+```
