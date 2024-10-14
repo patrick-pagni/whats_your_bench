@@ -1,11 +1,5 @@
 # Benchmarking Probabilistic Programming Languages
 
-*Patrick Pagni*
-
-*230246906*
-
-This code is accompanied by the research paper submitted for grading over Turnitin.
-
 ## Installation instructions
 
 1. Create new conda env using this tool
