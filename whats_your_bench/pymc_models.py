@@ -1,8 +1,13 @@
 from utils import timer
+from conjugate_priors import (
+    NormalKnownVarPredictiveParams,
+    NormalKnownMeanPredictiveParams,
+    MvNormalKnownCovPredictiveParams,
+    MvNormalKnownMeanPredictiveParams,
+)
 
 import pymc as pm
 import numpy as np
-from types import SimpleNamespace
 
 @timer
 def normal_variance(priors, variance, data):
@@ -15,7 +20,7 @@ def normal_variance(priors, variance, data):
 
         idata = pm.sample()
 
-        return SimpleNamespace(
+        return NormalKnownVarPredictiveParams(
             loc = float(idata.posterior["mu"].mean()),
             scale = variance
         )
@@ -29,13 +34,13 @@ def normal_mean(priors, mean, data):
         # Priors for unknown model parameters
         nu = pm.HalfNormal("nu", sigma = prior_nu)
         sigma = pm.HalfNormal("sigma", sigma = prior_sigma)
-        
+
         # Likelihood
         obs = pm.StudentT("obs", nu = nu, mu = mean, sigma = sigma, observed = data)
 
         idata = pm.sample()
 
-        return SimpleNamespace(
+        return NormalKnownMeanPredictiveParams(
             df = float(idata.posterior["nu"].mean()),
             loc = mean,
             scale = float(idata.posterior["sigma"].mean())
@@ -56,7 +61,7 @@ def mvnormal_covariance(priors, covariance, data):
             cov = prior_sigma,
             shape = d
             )
-        
+
         # Likelihood
         obs = pm.MvNormal(
             "obs",
@@ -67,7 +72,7 @@ def mvnormal_covariance(priors, covariance, data):
 
         idata = pm.sample(cores = 1)
 
-    return SimpleNamespace(
+    return MvNormalKnownCovPredictiveParams(
         mean = idata.posterior["mu"].mean(axis = 0).mean(axis = 0).values,
         cov = covariance
     )
@@ -100,8 +105,8 @@ def mvnormal_mean(priors, mean, data):
             idata_kwargs={"dims": {"chol_stds": ["axis"], "chol_corr": ["axis", "axis_bis"]}},
             cores = 1
         )
-    
-    return SimpleNamespace(
+
+    return MvNormalKnownMeanPredictiveParams(
         df = idata.posterior.nu.mean().values,
         loc = mean,
         shape = idata.posterior.scale.mean(axis = 0).mean(axis = 0).values

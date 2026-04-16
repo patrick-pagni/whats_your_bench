@@ -1,9 +1,14 @@
 from utils import timer
+from conjugate_priors import (
+    NormalKnownVarPredictiveParams,
+    NormalKnownMeanPredictiveParams,
+    MvNormalKnownCovPredictiveParams,
+    MvNormalKnownMeanPredictiveParams,
+)
 
 import torch
 import pyro
 import pyro.distributions as pyro_dist
-from types import SimpleNamespace
 
 @timer
 def normal_variance(priors, variance, data):
@@ -13,7 +18,7 @@ def normal_variance(priors, variance, data):
 
         with pyro.plate("data", data.shape[0]):
             pyro.sample("obs", pyro_dist.Normal(mu, variance), obs = torch.Tensor(data))
-    
+
     prior_mu, prior_sigma = priors
 
     kernel = pyro.infer.NUTS(_setup_pyro_model)
@@ -23,7 +28,7 @@ def normal_variance(priors, variance, data):
 
     hmc_samples = {k: v.detach().cpu().numpy() for k, v in mcmc.get_samples().items()}
 
-    return  SimpleNamespace(
+    return NormalKnownVarPredictiveParams(
         loc = hmc_samples["mu"].mean(),
         scale = variance
     )
@@ -55,12 +60,12 @@ def normal_mean(priors, mean, data):
 
     hmc_samples = {k: v.detach().cpu().numpy() for k, v in mcmc.get_samples().items()}
 
-    return SimpleNamespace(
+    return NormalKnownMeanPredictiveParams(
         df = hmc_samples["nu"].mean(),
         loc = mean,
         scale = hmc_samples["sigma"].mean().item()
     )
-    
+
 @timer
 def mvnormal_covariance(priors, covariance, data):
 
@@ -91,7 +96,7 @@ def mvnormal_covariance(priors, covariance, data):
 
     hmc_samples = {k: v.detach().cpu().numpy() for k, v in mcmc.get_samples().items()}
 
-    return SimpleNamespace(
+    return MvNormalKnownCovPredictiveParams(
         mean = hmc_samples["mu"].mean(axis = 0),
         cov = covariance
     )
@@ -135,7 +140,7 @@ def mvnormal_mean(priors, mean, data):
 
     shape = D @ L @ L.T @ D
 
-    return SimpleNamespace(
+    return MvNormalKnownMeanPredictiveParams(
         df = hmc_samples["nu"].mean().item(),
         loc = mean,
         shape = shape.numpy()
