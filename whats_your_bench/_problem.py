@@ -1,7 +1,25 @@
 import distance
 
-from types import SimpleNamespace
+from dataclasses import dataclass
+from typing import Any
 import pandas as pd
+
+@dataclass
+class ModelOutputs:
+    pymc_model: Any = None
+    pyro_model: Any = None
+    stan_model: Any = None
+
+@dataclass
+class ModelTimes:
+    pymc_model: float = 0.0
+    pyro_model: float = 0.0
+    stan_model: float = 0.0
+
+@dataclass
+class _DistParams:
+    loc: Any
+    scale: Any
 
 class Problem():
 
@@ -13,12 +31,12 @@ class Problem():
             data_distribution,
             random_state
             ):
-        
+
         self.data = data_distribution.rvs(
             size = sample_size,
             random_state = random_state
             )
-        
+
         self.random_state = random_state
 
         self.conjugate_model = conjugate_prior
@@ -26,29 +44,21 @@ class Problem():
 
         self.ppl_priors = ppl_priors
 
-        self.models = SimpleNamespace(
-            pymc_model = None,
-            pyro_model = None,
-            stan_model = None
-        )
+        self.models = ModelOutputs()
 
-        self.times = SimpleNamespace(
-            pymc_model = None,
-            pyro_model = None,
-            stan_model = None
-        )
+        self.times = ModelTimes()
 
     def get_support_lim(self):
         true_params = self.conjugate_model.posterior_predictive_params
 
         if "mean" in true_params.__dict__.keys():
-            true_params = SimpleNamespace(
+            true_params = _DistParams(
                 loc = true_params.mean,
                 scale = true_params.cov
             )
 
         if "shape" in true_params.__dict__.keys():
-            true_params = SimpleNamespace(
+            true_params = _DistParams(
                 loc = true_params.loc,
                 scale = true_params.shape
             )
@@ -71,10 +81,10 @@ class Problem():
 
         if metric == "ks_test":
             return distance.ks_test(p, q, support_lim, self.random_state, method = method)
-        
+
         elif metric == "kl_divergence":
             return distance.kl_divergence(p, q, support_lim)
-        
+
     def evaluate_models(self):
 
         ppl = []
@@ -113,7 +123,7 @@ class Problem():
                 q,
                 self.support_lim[0]
                 )
-            
+
             ks_distance_all, ks_score_all = ks_results_all
             ks_distances_all.append(ks_distance_all)
             ks_scores_all.append(ks_score_all)
@@ -125,7 +135,7 @@ class Problem():
                 q,
                 self.support_lim[0],
                 method = "subsample")
-            
+
             ks_distance_ss, ks_score_ss = ks_results_ss
             ks_distances_ss.append(ks_distance_ss)
             ks_scores_ss.append(ks_score_ss)
@@ -134,7 +144,7 @@ class Problem():
             kl_div, kl_exe_time = self.get_distance("kl_divergence", p, q, self.support_lim[1])
             kl_divergences.append(kl_div)
             kl_exe_times.append(kl_exe_time)
-        
+
         self.results = pd.DataFrame(
             zip(
                 ppl,
@@ -147,7 +157,7 @@ class Problem():
                 ks_exe_times_ss,
                 kl_divergences,
                 kl_exe_times
-                ), 
+                ),
             columns = [
                 "Language",
                 "Model Exe Time",

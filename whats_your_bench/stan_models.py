@@ -1,20 +1,22 @@
 from utils import timer
+from conjugate_priors import (
+    NormalKnownVarPredictiveParams,
+    NormalKnownMeanPredictiveParams,
+    MvNormalKnownCovPredictiveParams,
+    MvNormalKnownMeanPredictiveParams,
+)
 
 import os
-from pathlib import Path
 from cmdstanpy import CmdStanModel
-from types import SimpleNamespace
-
-_STAN_DIR = Path(__file__).parent / "stan_models"
 
 @timer
 def normal_variance(priors, variance, data):
-    stan_file = _STAN_DIR / "normalKnownVar.stan"
+    stan_file = os.path.join("../whats_your_bench/stan_models/normalKnownVar.stan")
 
     model = CmdStanModel(stan_file = stan_file)
 
     prior_mu, prior_sigma = priors
-        
+
     stan_data = {
         "N": data.shape[0],
         "X": data,
@@ -25,19 +27,19 @@ def normal_variance(priors, variance, data):
 
     fit = model.sample(data = stan_data)
 
-    return SimpleNamespace(
+    return NormalKnownVarPredictiveParams(
         loc = fit.mu.mean(axis = 0),
         scale = variance
     )
 
 @timer
 def normal_mean(priors, mean, data):
-    stan_file = _STAN_DIR / "normalKnownMean.stan"
+    stan_file = os.path.join("../whats_your_bench/stan_models/normalKnownMean.stan")
 
     model = CmdStanModel(stan_file = stan_file)
 
     prior_nu, prior_sigma = priors
-        
+
     stan_data = {
         "N": data.shape[0],
         "X": data,
@@ -48,7 +50,7 @@ def normal_mean(priors, mean, data):
 
     fit = model.sample(data = stan_data)
 
-    return SimpleNamespace(
+    return NormalKnownMeanPredictiveParams(
         df = fit.nu.mean(axis = 0),
         loc = mean,
         scale = fit.sigma.mean(axis = 0)
@@ -56,12 +58,12 @@ def normal_mean(priors, mean, data):
 
 @timer
 def mvnormal_covariance(priors, covariance, data):
-    stan_file = _STAN_DIR / "mvNormalKnownCov.stan"
+    stan_file = os.path.join("../whats_your_bench/stan_models/mvNormalKnownCov.stan")
 
     model = CmdStanModel(stan_file = stan_file)
 
     prior_mu, prior_sigma = priors
-    
+
     stan_data = {
         "N": data.shape[0],
         "M": data.shape[1],
@@ -72,19 +74,19 @@ def mvnormal_covariance(priors, covariance, data):
     }
 
     fit = model.sample(data = stan_data)
-    return SimpleNamespace(
+    return MvNormalKnownCovPredictiveParams(
         mean = fit.mu.mean(axis = 0),
         cov = covariance
     )
 
 @timer
 def mvnormal_mean(priors, mean, data):
-    stan_file = _STAN_DIR / "mvNormalKnownMean.stan"
+    stan_file = os.path.join("../whats_your_bench/stan_models/mvNormalKnownMean.stan")
 
     model = CmdStanModel(stan_file = stan_file)
 
     prior_beta, prior_eta, prior_nu = priors
-    
+
     stan_data = {
         "N": data.shape[0],
         "M": data.shape[1],
@@ -96,7 +98,7 @@ def mvnormal_mean(priors, mean, data):
     }
 
     fit = model.sample(data = stan_data)
-    return SimpleNamespace(
+    return MvNormalKnownMeanPredictiveParams(
         df = fit.nu.mean(),
         loc = mean,
         shape = fit.Psi.mean(axis = 0)
