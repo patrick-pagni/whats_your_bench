@@ -2,7 +2,7 @@
 import os
 from setuptools import setup, find_packages
 
-REQUIREMENTS = ['torch', 'numpy', 'scipy', 'pandas', 'hotelling', 'bootstrapped', 'openimages']
+REQUIREMENTS = ['torch', 'numpy', 'scipy', 'pandas', 'pymc', 'pyro-ppl', 'cmdstanpy', 'ddks', 'tabulate']
 
 setup(name='whats_your_bench',
       version=0.1,
@@ -14,4 +14,3 @@ setup(name='whats_your_bench',
       packages=find_packages(),
       install_requires=REQUIREMENTS,
      )
-
