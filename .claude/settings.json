@@ -1,0 +1,17 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "mcp__github__create_pull_request",
+        "hooks": [
+          {
+            "type": "agent",
+            "prompt": "A pull request was just created. The tool response is: $ARGUMENTS\n\nExtract the pull request number from the response (look for a 'number' field or parse it from the PR URL). Then call mcp__github__request_copilot_review with owner='patrick-pagni', repo='whats_your_bench', and the pull_number you extracted. Do not do anything else.",
+            "statusMessage": "Requesting Copilot review...",
+            "timeout": 60
+          }
+        ]
+      }
+    ]
+  }
+}
