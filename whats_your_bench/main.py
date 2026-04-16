@@ -1,3 +1,4 @@
+import logging
 import problem_set
 import os
 import sys
@@ -5,6 +6,8 @@ import inspect
 import pandas as pd
 import datetime
 import argparse
+
+logging.basicConfig(level=logging.INFO)
 
 parser = argparse.ArgumentParser(description="CLI for what's your bench")
 parser.add_argument("problems", metavar="problems", type = int, nargs = "+", help = "Problems to be run by benchmarking suite")
@@ -20,7 +23,7 @@ results = pd.DataFrame()
 for i, problem in enumerate(problems):
 
     p = problem()
-    print(type(p).__name__)
+    logging.info("Evaluating %s", type(p).__name__)
 
     p.run_models()
     success = False
@@ -30,11 +33,12 @@ for i, problem in enumerate(problems):
         try:
             p.evaluate_models()
             success = True
-        except:
+        except Exception as e:
             if retries < 3:
                 retries += 1
+                logging.warning("Attempt %d failed for %s: %s", retries, type(p).__name__, e)
             else:
-                raise RuntimeError
+                raise RuntimeError(f"Failed to evaluate {type(p).__name__} after 3 attempts") from e
 
     p.results.insert(loc = 0, column = "Problem #", value = [type(p).__name__]*p.results.shape[0])
     results = pd.concat([results, p.results], axis = 0)
