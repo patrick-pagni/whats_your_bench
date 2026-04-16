@@ -1,4 +1,5 @@
 import distance
+from config import SUPPORT_LIMIT_SCALE
 
 from types import SimpleNamespace
 import pandas as pd
@@ -54,12 +55,12 @@ class Problem():
             )
 
         if isinstance(true_params.loc, (int, float)):
-            ks_lim = true_params.loc + (10*true_params.scale)
-            kl_lim = [true_params.loc - (10*true_params.scale), true_params.loc + (10*true_params.scale)]
+            ks_lim = true_params.loc + (SUPPORT_LIMIT_SCALE*true_params.scale)
+            kl_lim = [true_params.loc - (SUPPORT_LIMIT_SCALE*true_params.scale), true_params.loc + (SUPPORT_LIMIT_SCALE*true_params.scale)]
 
         else:
-            ks_lim = (true_params.loc + (10*true_params.scale.diagonal())).max()
-            kl_lim = [true_params.loc - (10*true_params.scale.diagonal()), true_params.loc + (10*true_params.scale.diagonal())]
+            ks_lim = (true_params.loc + (SUPPORT_LIMIT_SCALE*true_params.scale.diagonal())).max()
+            kl_lim = [true_params.loc - (SUPPORT_LIMIT_SCALE*true_params.scale.diagonal()), true_params.loc + (SUPPORT_LIMIT_SCALE*true_params.scale.diagonal())]
 
         self.support_lim = [ks_lim, kl_lim]
 

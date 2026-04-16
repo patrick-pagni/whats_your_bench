@@ -1,4 +1,5 @@
 from utils import timer
+from config import PDF_GRID_SIZE, KS_SAMPLE_SIZE
 
 import numpy as np
 import torch
@@ -24,7 +25,7 @@ def _generate_array(start, end, n, reverse = False):
 
     return np.array([np.array(x) for x in list(zip(*axes))])
 
-def _pdf_space(start, end, n = 1000):
+def _pdf_space(start, end, n = PDF_GRID_SIZE):
     mean = np.array([start, end]).mean(axis = 0)
 
     arr1 = _generate_array(start, mean, int(n/2), reverse = True)
@@ -57,8 +58,8 @@ def kl_divergence(p, q, support_lim):
 @timer
 def ks_test(p, q, support_lim, random_state, method = "all"):
 
-    pred = p.rvs(100, random_state = random_state)
-    true = q.rvs(100, random_state = random_state)
+    pred = p.rvs(KS_SAMPLE_SIZE, random_state = random_state)
+    true = q.rvs(KS_SAMPLE_SIZE, random_state = random_state)
 
     if len(true.shape) == 1:
         true = true.reshape(-1, 1)
