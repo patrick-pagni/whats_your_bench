@@ -1,12 +1,15 @@
 from utils import timer
 
 import os
+from pathlib import Path
 from cmdstanpy import CmdStanModel
 from types import SimpleNamespace
 
+_STAN_DIR = Path(__file__).parent / "stan_models"
+
 @timer
 def normal_variance(priors, variance, data):
-    stan_file = os.path.join("../whats_your_bench/stan_models/normalKnownVar.stan")
+    stan_file = _STAN_DIR / "normalKnownVar.stan"
 
     model = CmdStanModel(stan_file = stan_file)
 
@@ -29,7 +32,7 @@ def normal_variance(priors, variance, data):
 
 @timer
 def normal_mean(priors, mean, data):
-    stan_file = os.path.join("../whats_your_bench/stan_models/normalKnownMean.stan")
+    stan_file = _STAN_DIR / "normalKnownMean.stan"
 
     model = CmdStanModel(stan_file = stan_file)
 
@@ -53,7 +56,7 @@ def normal_mean(priors, mean, data):
 
 @timer
 def mvnormal_covariance(priors, covariance, data):
-    stan_file = os.path.join("../whats_your_bench/stan_models/mvNormalKnownCov.stan")
+    stan_file = _STAN_DIR / "mvNormalKnownCov.stan"
 
     model = CmdStanModel(stan_file = stan_file)
 
@@ -76,7 +79,7 @@ def mvnormal_covariance(priors, covariance, data):
 
 @timer
 def mvnormal_mean(priors, mean, data):
-    stan_file = os.path.join("../whats_your_bench/stan_models/mvNormalKnownMean.stan")
+    stan_file = _STAN_DIR / "mvNormalKnownMean.stan"
 
     model = CmdStanModel(stan_file = stan_file)
 
