@@ -1,9 +1,9 @@
 numpy
 scipy
 torch
-torchvision
-torchaudio
 pyro-ppl
 cmdstanpy
+pymc
 pandas
 tabulate
+ddks
