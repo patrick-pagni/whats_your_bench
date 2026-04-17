@@ -1,5 +1,6 @@
-from .utils import timer
-from .conjugate_priors import (
+from utils import timer
+from config import MCMC_NUM_SAMPLES, MCMC_WARMUP_STEPS
+from conjugate_priors import (
     NormalKnownVarPredictiveParams,
     NormalKnownMeanPredictiveParams,
     MvNormalKnownCovPredictiveParams,
@@ -23,7 +24,7 @@ def normal_variance(priors, variance, data):
 
     kernel = pyro.infer.NUTS(_setup_pyro_model)
 
-    mcmc = pyro.infer.MCMC(kernel, num_samples = 1000, warmup_steps = 200)
+    mcmc = pyro.infer.MCMC(kernel, num_samples = MCMC_NUM_SAMPLES, warmup_steps = MCMC_WARMUP_STEPS)
     mcmc.run()
 
     hmc_samples = {k: v.detach().cpu().numpy() for k, v in mcmc.get_samples().items()}
@@ -55,7 +56,7 @@ def normal_mean(priors, mean, data):
 
     kernel = pyro.infer.NUTS(_setup_pyro_model)
 
-    mcmc = pyro.infer.MCMC(kernel, num_samples = 1000, warmup_steps = 200)
+    mcmc = pyro.infer.MCMC(kernel, num_samples = MCMC_NUM_SAMPLES, warmup_steps = MCMC_WARMUP_STEPS)
     mcmc.run()
 
     hmc_samples = {k: v.detach().cpu().numpy() for k, v in mcmc.get_samples().items()}
@@ -91,7 +92,7 @@ def mvnormal_covariance(priors, covariance, data):
     prior_mu, prior_sigma = priors
     kernel = pyro.infer.NUTS(_setup_pyro_model)
 
-    mcmc = pyro.infer.MCMC(kernel, num_samples = 1000, warmup_steps = 200)
+    mcmc = pyro.infer.MCMC(kernel, num_samples = MCMC_NUM_SAMPLES, warmup_steps = MCMC_WARMUP_STEPS)
     mcmc.run()
 
     hmc_samples = {k: v.detach().cpu().numpy() for k, v in mcmc.get_samples().items()}
@@ -130,7 +131,7 @@ def mvnormal_mean(priors, mean, data):
 
     kernel = pyro.infer.NUTS(_setup_pyro_model)
 
-    mcmc = pyro.infer.MCMC(kernel, num_samples = 1000, warmup_steps = 200)
+    mcmc = pyro.infer.MCMC(kernel, num_samples = MCMC_NUM_SAMPLES, warmup_steps = MCMC_WARMUP_STEPS)
     mcmc.run()
 
     hmc_samples = {k: v.detach().cpu() for k, v in mcmc.get_samples().items()}
