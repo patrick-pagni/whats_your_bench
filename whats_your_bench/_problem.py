@@ -2,8 +2,9 @@ import distance
 from config import SUPPORT_LIMIT_SCALE
 
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, Union
 import pandas as pd
+import numpy.typing as npt
 
 @dataclass
 class ModelOutputs:
@@ -26,12 +27,12 @@ class Problem():
 
     def __init__(
             self,
-            conjugate_prior,
-            ppl_priors,
-            sample_size,
-            data_distribution,
-            random_state
-            ):
+            conjugate_prior: Any,
+            ppl_priors: Any,
+            sample_size: int,
+            data_distribution: Any,
+            random_state: int
+            ) -> None:
 
         self.data = data_distribution.rvs(
             size = sample_size,
@@ -49,7 +50,7 @@ class Problem():
 
         self.times = ModelTimes()
 
-    def get_support_lim(self):
+    def get_support_lim(self) -> None:
         true_params = self.conjugate_model.posterior_predictive_params
 
         if "mean" in true_params.__dict__.keys():
@@ -74,11 +75,11 @@ class Problem():
 
         self.support_lim = [ks_lim, kl_lim]
 
-    def _model_dist(self, dist, params):
+    def _model_dist(self, dist: Any, params: dict[str, Any]) -> Any:
 
         return dist(**params)
 
-    def get_distance(self, metric, p, q, support_lim, method = 'all'):
+    def get_distance(self, metric: str, p: Any, q: Any, support_lim: Union[float, list], method: str = 'all') -> tuple[Any, float]:
 
         if metric == "ks_test":
             return distance.ks_test(p, q, support_lim, self.random_state, method = method)
@@ -86,7 +87,7 @@ class Problem():
         elif metric == "kl_divergence":
             return distance.kl_divergence(p, q, support_lim)
 
-    def evaluate_models(self):
+    def evaluate_models(self) -> None:
 
         ppl = []
 
