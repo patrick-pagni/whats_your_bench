@@ -1,24 +1,26 @@
 import distance
 
 from types import SimpleNamespace
+from typing import Any, Union
 import pandas as pd
+import numpy.typing as npt
 
 class Problem():
 
     def __init__(
             self,
-            conjugate_prior,
-            ppl_priors,
-            sample_size,
-            data_distribution,
-            random_state
-            ):
-        
+            conjugate_prior: Any,
+            ppl_priors: Any,
+            sample_size: int,
+            data_distribution: Any,
+            random_state: int
+            ) -> None:
+
         self.data = data_distribution.rvs(
             size = sample_size,
             random_state = random_state
             )
-        
+
         self.random_state = random_state
 
         self.conjugate_model = conjugate_prior
@@ -38,7 +40,7 @@ class Problem():
             stan_model = None
         )
 
-    def get_support_lim(self):
+    def get_support_lim(self) -> None:
         true_params = self.conjugate_model.posterior_predictive_params
 
         if "mean" in true_params.__dict__.keys():
@@ -63,19 +65,19 @@ class Problem():
 
         self.support_lim = [ks_lim, kl_lim]
 
-    def _model_dist(self, dist, params):
+    def _model_dist(self, dist: Any, params: dict[str, Any]) -> Any:
 
         return dist(**params)
 
-    def get_distance(self, metric, p, q, support_lim, method = 'all'):
+    def get_distance(self, metric: str, p: Any, q: Any, support_lim: Union[float, list], method: str = 'all') -> tuple[Any, float]:
 
         if metric == "ks_test":
             return distance.ks_test(p, q, support_lim, self.random_state, method = method)
-        
+
         elif metric == "kl_divergence":
             return distance.kl_divergence(p, q, support_lim)
-        
-    def evaluate_models(self):
+
+    def evaluate_models(self) -> None:
 
         ppl = []
 
@@ -113,7 +115,7 @@ class Problem():
                 q,
                 self.support_lim[0]
                 )
-            
+
             ks_distance_all, ks_score_all = ks_results_all
             ks_distances_all.append(ks_distance_all)
             ks_scores_all.append(ks_score_all)
@@ -125,7 +127,7 @@ class Problem():
                 q,
                 self.support_lim[0],
                 method = "subsample")
-            
+
             ks_distance_ss, ks_score_ss = ks_results_ss
             ks_distances_ss.append(ks_distance_ss)
             ks_scores_ss.append(ks_score_ss)
@@ -134,7 +136,7 @@ class Problem():
             kl_div, kl_exe_time = self.get_distance("kl_divergence", p, q, self.support_lim[1])
             kl_divergences.append(kl_div)
             kl_exe_times.append(kl_exe_time)
-        
+
         self.results = pd.DataFrame(
             zip(
                 ppl,
@@ -147,7 +149,7 @@ class Problem():
                 ks_exe_times_ss,
                 kl_divergences,
                 kl_exe_times
-                ), 
+                ),
             columns = [
                 "Language",
                 "Model Exe Time",

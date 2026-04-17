@@ -1,20 +1,19 @@
 from utils import timer
 
 import os
-from pathlib import Path
+import numpy.typing as npt
 from cmdstanpy import CmdStanModel
 from types import SimpleNamespace
-
-_STAN_DIR = Path(__file__).parent / "stan_models"
+from typing import Any
 
 @timer
-def normal_variance(priors, variance, data):
-    stan_file = _STAN_DIR / "normalKnownVar.stan"
+def normal_variance(priors: tuple[float, float], variance: float, data: npt.NDArray) -> tuple[Any, float]:
+    stan_file = os.path.join("../whats_your_bench/stan_models/normalKnownVar.stan")
 
     model = CmdStanModel(stan_file = stan_file)
 
     prior_mu, prior_sigma = priors
-        
+
     stan_data = {
         "N": data.shape[0],
         "X": data,
@@ -31,13 +30,13 @@ def normal_variance(priors, variance, data):
     )
 
 @timer
-def normal_mean(priors, mean, data):
-    stan_file = _STAN_DIR / "normalKnownMean.stan"
+def normal_mean(priors: tuple[float, float], mean: float, data: npt.NDArray) -> tuple[Any, float]:
+    stan_file = os.path.join("../whats_your_bench/stan_models/normalKnownMean.stan")
 
     model = CmdStanModel(stan_file = stan_file)
 
     prior_nu, prior_sigma = priors
-        
+
     stan_data = {
         "N": data.shape[0],
         "X": data,
@@ -55,13 +54,13 @@ def normal_mean(priors, mean, data):
     )
 
 @timer
-def mvnormal_covariance(priors, covariance, data):
-    stan_file = _STAN_DIR / "mvNormalKnownCov.stan"
+def mvnormal_covariance(priors: tuple[npt.NDArray, npt.NDArray], covariance: npt.NDArray, data: npt.NDArray) -> tuple[Any, float]:
+    stan_file = os.path.join("../whats_your_bench/stan_models/mvNormalKnownCov.stan")
 
     model = CmdStanModel(stan_file = stan_file)
 
     prior_mu, prior_sigma = priors
-    
+
     stan_data = {
         "N": data.shape[0],
         "M": data.shape[1],
@@ -78,13 +77,13 @@ def mvnormal_covariance(priors, covariance, data):
     )
 
 @timer
-def mvnormal_mean(priors, mean, data):
-    stan_file = _STAN_DIR / "mvNormalKnownMean.stan"
+def mvnormal_mean(priors: tuple[float, float, float], mean: npt.NDArray, data: npt.NDArray) -> tuple[Any, float]:
+    stan_file = os.path.join("../whats_your_bench/stan_models/mvNormalKnownMean.stan")
 
     model = CmdStanModel(stan_file = stan_file)
 
     prior_beta, prior_eta, prior_nu = priors
-    
+
     stan_data = {
         "N": data.shape[0],
         "M": data.shape[1],

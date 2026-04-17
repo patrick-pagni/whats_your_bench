@@ -2,10 +2,12 @@ from utils import timer
 
 import pymc as pm
 import numpy as np
+import numpy.typing as npt
 from types import SimpleNamespace
+from typing import Any
 
 @timer
-def normal_variance(priors, variance, data):
+def normal_variance(priors: tuple[float, float], variance: float, data: npt.NDArray) -> tuple[Any, float]:
 
     prior_mu, prior_sigma = priors
     with pm.Model():
@@ -21,7 +23,7 @@ def normal_variance(priors, variance, data):
         )
 
 @timer
-def normal_mean(priors, mean, data):
+def normal_mean(priors: tuple[float, float], mean: float, data: npt.NDArray) -> tuple[Any, float]:
 
     prior_nu, prior_sigma = priors
 
@@ -29,7 +31,7 @@ def normal_mean(priors, mean, data):
         # Priors for unknown model parameters
         nu = pm.HalfNormal("nu", sigma = prior_nu)
         sigma = pm.HalfNormal("sigma", sigma = prior_sigma)
-        
+
         # Likelihood
         obs = pm.StudentT("obs", nu = nu, mu = mean, sigma = sigma, observed = data)
 
@@ -43,7 +45,7 @@ def normal_mean(priors, mean, data):
 
 
 @timer
-def mvnormal_covariance(priors, covariance, data):
+def mvnormal_covariance(priors: tuple[npt.NDArray, npt.NDArray], covariance: npt.NDArray, data: npt.NDArray) -> tuple[Any, float]:
 
     prior_mu, prior_sigma = priors
     d = data.shape[1]
@@ -56,7 +58,7 @@ def mvnormal_covariance(priors, covariance, data):
             cov = prior_sigma,
             shape = d
             )
-        
+
         # Likelihood
         obs = pm.MvNormal(
             "obs",
@@ -74,7 +76,7 @@ def mvnormal_covariance(priors, covariance, data):
 
 
 @timer
-def mvnormal_mean(priors, mean, data):
+def mvnormal_mean(priors: tuple[float, float, float], mean: npt.NDArray, data: npt.NDArray) -> tuple[Any, float]:
 
     prior_beta, prior_eta, prior_nu = priors
     N, d = data.shape
@@ -100,7 +102,7 @@ def mvnormal_mean(priors, mean, data):
             idata_kwargs={"dims": {"chol_stds": ["axis"], "chol_corr": ["axis", "axis_bis"]}},
             cores = 1
         )
-    
+
     return SimpleNamespace(
         df = idata.posterior.nu.mean().values,
         loc = mean,
