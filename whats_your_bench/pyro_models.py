@@ -1,5 +1,5 @@
-from .utils import timer
-from .conjugate_priors import (
+from utils import timer
+from conjugate_priors import (
     NormalKnownVarPredictiveParams,
     NormalKnownMeanPredictiveParams,
     MvNormalKnownCovPredictiveParams,
@@ -9,11 +9,13 @@ from .conjugate_priors import (
 import torch
 import pyro
 import pyro.distributions as pyro_dist
+import numpy.typing as npt
+from typing import Any
 
 @timer
-def normal_variance(priors, variance, data):
+def normal_variance(priors: tuple[float, float], variance: float, data: npt.NDArray) -> tuple[Any, float]:
 
-    def _setup_pyro_model():
+    def _setup_pyro_model() -> None:
         mu = pyro.sample("mu", pyro_dist.Normal(prior_mu, prior_sigma))
 
         with pyro.plate("data", data.shape[0]):
@@ -34,11 +36,11 @@ def normal_variance(priors, variance, data):
     )
 
 @timer
-def normal_mean(priors, mean, data):
+def normal_mean(priors: tuple[float, float], mean: float, data: npt.NDArray) -> tuple[Any, float]:
 
     prior_nu, prior_sigma = priors
 
-    def _setup_pyro_model():
+    def _setup_pyro_model() -> None:
 
         nu = pyro.sample(
             "nu",
@@ -67,9 +69,9 @@ def normal_mean(priors, mean, data):
     )
 
 @timer
-def mvnormal_covariance(priors, covariance, data):
+def mvnormal_covariance(priors: tuple[npt.NDArray, npt.NDArray], covariance: npt.NDArray, data: npt.NDArray) -> tuple[Any, float]:
 
-    def _setup_pyro_model():
+    def _setup_pyro_model() -> None:
         mu = pyro.sample(
             "mu",
             pyro_dist.MultivariateNormal(
@@ -102,9 +104,9 @@ def mvnormal_covariance(priors, covariance, data):
     )
 
 @timer
-def mvnormal_mean(priors, mean, data):
+def mvnormal_mean(priors: tuple[float, float, float], mean: npt.NDArray, data: npt.NDArray) -> tuple[Any, float]:
 
-    def _setup_pyro_model():
+    def _setup_pyro_model() -> None:
         N, M = data.shape
 
         nu = pyro.sample("nu", pyro_dist.HalfNormal(prior_nu))
