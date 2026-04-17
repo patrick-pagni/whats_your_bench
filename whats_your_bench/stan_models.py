@@ -1,5 +1,5 @@
-from .utils import timer
-from .conjugate_priors import (
+from utils import timer
+from conjugate_priors import (
     NormalKnownVarPredictiveParams,
     NormalKnownMeanPredictiveParams,
     MvNormalKnownCovPredictiveParams,
@@ -7,13 +7,13 @@ from .conjugate_priors import (
 )
 
 import os
+import numpy.typing as npt
 from cmdstanpy import CmdStanModel
-
-_STAN_DIR = os.path.join(os.path.dirname(__file__), "stan_models")
+from typing import Any
 
 @timer
-def normal_variance(priors, variance, data):
-    stan_file = os.path.join(_STAN_DIR, "normalKnownVar.stan")
+def normal_variance(priors: tuple[float, float], variance: float, data: npt.NDArray) -> tuple[Any, float]:
+    stan_file = os.path.join("../whats_your_bench/stan_models/normalKnownVar.stan")
 
     model = CmdStanModel(stan_file = stan_file)
 
@@ -35,8 +35,8 @@ def normal_variance(priors, variance, data):
     )
 
 @timer
-def normal_mean(priors, mean, data):
-    stan_file = os.path.join(_STAN_DIR, "normalKnownMean.stan")
+def normal_mean(priors: tuple[float, float], mean: float, data: npt.NDArray) -> tuple[Any, float]:
+    stan_file = os.path.join("../whats_your_bench/stan_models/normalKnownMean.stan")
 
     model = CmdStanModel(stan_file = stan_file)
 
@@ -59,8 +59,8 @@ def normal_mean(priors, mean, data):
     )
 
 @timer
-def mvnormal_covariance(priors, covariance, data):
-    stan_file = os.path.join(_STAN_DIR, "mvNormalKnownCov.stan")
+def mvnormal_covariance(priors: tuple[npt.NDArray, npt.NDArray], covariance: npt.NDArray, data: npt.NDArray) -> tuple[Any, float]:
+    stan_file = os.path.join("../whats_your_bench/stan_models/mvNormalKnownCov.stan")
 
     model = CmdStanModel(stan_file = stan_file)
 
@@ -82,8 +82,8 @@ def mvnormal_covariance(priors, covariance, data):
     )
 
 @timer
-def mvnormal_mean(priors, mean, data):
-    stan_file = os.path.join(_STAN_DIR, "mvNormalKnownMean.stan")
+def mvnormal_mean(priors: tuple[float, float, float], mean: npt.NDArray, data: npt.NDArray) -> tuple[Any, float]:
+    stan_file = os.path.join("../whats_your_bench/stan_models/mvNormalKnownMean.stan")
 
     model = CmdStanModel(stan_file = stan_file)
 

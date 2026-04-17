@@ -1,8 +1,9 @@
 import time
+from typing import Any, Callable
 
-def timer(func):
+def timer(func: Callable) -> Callable:
 
-    def wrap(*args, **kwargs):
+    def wrap(*args: Any, **kwargs: Any) -> tuple[Any, float]:
         start = time.time()
         result = func(*args, **kwargs)
         end = time.time()

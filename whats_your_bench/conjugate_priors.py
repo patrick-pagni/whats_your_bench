@@ -1,7 +1,8 @@
 import numpy as np
+import numpy.typing as npt
 from scipy import stats
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, Union
 
 @dataclass
 class _NormalKnownVarPriorParams:
@@ -68,17 +69,17 @@ class MvNormalKnownMeanPredictiveParams:
 class NormalKnownVar():
     def __init__(
             self,
-            variance,
-            prior_params,
-            ):
+            variance: float,
+            prior_params: dict[str, float],
+            ) -> None:
 
         self.prior_params = _NormalKnownVarPriorParams(**prior_params)
         self.sigma = variance
 
     def find_predictive_posterior(
             self,
-            data
-            ):
+            data: npt.NDArray
+            ) -> None:
 
         N = data.shape[0]
 
@@ -97,9 +98,9 @@ class NormalKnownVar():
 class NormalKnownMean():
     def __init__(
             self,
-            mean,
-            prior_params
-            ):
+            mean: float,
+            prior_params: dict[str, float]
+            ) -> None:
 
         self.prior_params = _NormalKnownMeanPriorParams(**prior_params)
 
@@ -107,8 +108,8 @@ class NormalKnownMean():
 
     def find_predictive_posterior(
             self,
-            data
-            ):
+            data: npt.NDArray
+            ) -> None:
 
         N = data.shape[0]
 
@@ -129,9 +130,9 @@ class MvNormalKnownCov():
 
     def __init__(
             self,
-            covariance,
-            prior_params
-            ):
+            covariance: npt.NDArray,
+            prior_params: dict[str, Union[npt.NDArray, float]]
+            ) -> None:
 
         self.prior_params = _MvNormalKnownCovPriorParams(**prior_params)
 
@@ -139,8 +140,8 @@ class MvNormalKnownCov():
 
     def find_predictive_posterior(
             self,
-            data
-        ):
+            data: npt.NDArray
+        ) -> None:
 
         N = data.shape[0]
 
@@ -159,9 +160,9 @@ class MvNormalKnownCov():
 class MvNormalKnownMean():
     def __init__(
             self,
-            mean,
-            prior_params
-            ):
+            mean: npt.NDArray,
+            prior_params: dict[str, Union[npt.NDArray, float]]
+            ) -> None:
 
         self.prior_params = _MvNormalKnownMeanPriorParams(**prior_params)
 
@@ -169,8 +170,8 @@ class MvNormalKnownMean():
 
     def find_predictive_posterior(
             self,
-            data
-        ):
+            data: npt.NDArray
+        ) -> None:
 
         N = data.shape[0]
         p = data.shape[1]
