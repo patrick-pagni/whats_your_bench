@@ -1,4 +1,4 @@
-from utils import timer
+from .utils import timer
 
 import numpy as np
 import torch

@@ -13,4 +13,9 @@ setup(name='whats_your_bench',
       long_description=open('README.md').read(),
       packages=find_packages(),
       install_requires=REQUIREMENTS,
+      entry_points={
+          'console_scripts': [
+              'wyb=whats_your_bench.main:main',
+          ],
+      },
      )

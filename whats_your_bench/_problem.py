@@ -1,4 +1,4 @@
-import distance
+from . import distance
 
 from dataclasses import dataclass
 from typing import Any
