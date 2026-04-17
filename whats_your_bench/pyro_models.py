@@ -1,5 +1,5 @@
-from utils import timer
-from conjugate_priors import (
+from .utils import timer
+from .conjugate_priors import (
     NormalKnownVarPredictiveParams,
     NormalKnownMeanPredictiveParams,
     MvNormalKnownCovPredictiveParams,

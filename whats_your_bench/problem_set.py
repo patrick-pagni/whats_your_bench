@@ -1,5 +1,5 @@
-import conjugate_priors as cp
-from _problem import Problem
+from . import conjugate_priors as cp
+from ._problem import Problem
 
 import numpy as np
 from scipy import stats
@@ -10,7 +10,7 @@ from typing import Any
 """
 Import models
 """
-import pymc_models, pyro_models, stan_models
+from . import pymc_models, pyro_models, stan_models
 
 
 @dataclass
