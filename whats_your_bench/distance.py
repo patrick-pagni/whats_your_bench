@@ -25,7 +25,8 @@ def _generate_array(start, end, n, reverse = False):
 
     return np.array([np.array(x) for x in list(zip(*axes))])
 
-def _pdf_space(start, end, n = PDF_GRID_SIZE):
+def _adaptive_pdf_grid(start, end, n = PDF_GRID_SIZE):
+    """Generate a non-uniform grid concentrated near the center, suitable for PDF evaluation."""
     mean = np.array([start, end]).mean(axis = 0)
 
     arr1 = _generate_array(start, mean, int(n/2), reverse = True)
@@ -33,8 +34,8 @@ def _pdf_space(start, end, n = PDF_GRID_SIZE):
 
     return np.concatenate([arr1, arr2[1:, :]])
 
-def integrate(function, space):
-
+def numerical_integrate_pdf(function, space):
+    """Numerically integrate a PDF over the given space using the trapezoid rule."""
     y = function(space)
     h = np.diff(space, axis = 0)
 
@@ -51,8 +52,8 @@ def integrate(function, space):
 @timer
 def kl_divergence(p, q, support_lim):
     start, end = support_lim
-    space = _pdf_space(start, end)
-    return integrate(lambda x: p.pdf(x) * np.log(p.pdf(x) / q.pdf(x)), space)
+    space = _adaptive_pdf_grid(start, end)
+    return numerical_integrate_pdf(lambda x: p.pdf(x) * np.log(p.pdf(x) / q.pdf(x)), space)
 
 # Function to get N-dimensional ks distance
 @timer
