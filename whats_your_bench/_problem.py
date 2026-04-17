@@ -1,9 +1,26 @@
 import distance
 
-from types import SimpleNamespace
+from dataclasses import dataclass
 from typing import Any, Union
 import pandas as pd
 import numpy.typing as npt
+
+@dataclass
+class ModelOutputs:
+    pymc_model: Any = None
+    pyro_model: Any = None
+    stan_model: Any = None
+
+@dataclass
+class ModelTimes:
+    pymc_model: float = 0.0
+    pyro_model: float = 0.0
+    stan_model: float = 0.0
+
+@dataclass
+class _DistParams:
+    loc: Any
+    scale: Any
 
 class Problem():
 
@@ -28,29 +45,21 @@ class Problem():
 
         self.ppl_priors = ppl_priors
 
-        self.models = SimpleNamespace(
-            pymc_model = None,
-            pyro_model = None,
-            stan_model = None
-        )
+        self.models = ModelOutputs()
 
-        self.times = SimpleNamespace(
-            pymc_model = None,
-            pyro_model = None,
-            stan_model = None
-        )
+        self.times = ModelTimes()
 
     def get_support_lim(self) -> None:
         true_params = self.conjugate_model.posterior_predictive_params
 
         if "mean" in true_params.__dict__.keys():
-            true_params = SimpleNamespace(
+            true_params = _DistParams(
                 loc = true_params.mean,
                 scale = true_params.cov
             )
 
         if "shape" in true_params.__dict__.keys():
-            true_params = SimpleNamespace(
+            true_params = _DistParams(
                 loc = true_params.loc,
                 scale = true_params.shape
             )

@@ -1,10 +1,15 @@
 from utils import timer
+from conjugate_priors import (
+    NormalKnownVarPredictiveParams,
+    NormalKnownMeanPredictiveParams,
+    MvNormalKnownCovPredictiveParams,
+    MvNormalKnownMeanPredictiveParams,
+)
 
 import torch
 import pyro
 import pyro.distributions as pyro_dist
 import numpy.typing as npt
-from types import SimpleNamespace
 from typing import Any
 
 @timer
@@ -25,7 +30,7 @@ def normal_variance(priors: tuple[float, float], variance: float, data: npt.NDAr
 
     hmc_samples = {k: v.detach().cpu().numpy() for k, v in mcmc.get_samples().items()}
 
-    return  SimpleNamespace(
+    return NormalKnownVarPredictiveParams(
         loc = hmc_samples["mu"].mean(),
         scale = variance
     )
@@ -57,7 +62,7 @@ def normal_mean(priors: tuple[float, float], mean: float, data: npt.NDArray) -> 
 
     hmc_samples = {k: v.detach().cpu().numpy() for k, v in mcmc.get_samples().items()}
 
-    return SimpleNamespace(
+    return NormalKnownMeanPredictiveParams(
         df = hmc_samples["nu"].mean(),
         loc = mean,
         scale = hmc_samples["sigma"].mean().item()
@@ -93,7 +98,7 @@ def mvnormal_covariance(priors: tuple[npt.NDArray, npt.NDArray], covariance: npt
 
     hmc_samples = {k: v.detach().cpu().numpy() for k, v in mcmc.get_samples().items()}
 
-    return SimpleNamespace(
+    return MvNormalKnownCovPredictiveParams(
         mean = hmc_samples["mu"].mean(axis = 0),
         cov = covariance
     )
@@ -137,7 +142,7 @@ def mvnormal_mean(priors: tuple[float, float, float], mean: npt.NDArray, data: n
 
     shape = D @ L @ L.T @ D
 
-    return SimpleNamespace(
+    return MvNormalKnownMeanPredictiveParams(
         df = hmc_samples["nu"].mean().item(),
         loc = mean,
         shape = shape.numpy()

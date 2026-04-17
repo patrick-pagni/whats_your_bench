@@ -1,9 +1,14 @@
 from utils import timer
+from conjugate_priors import (
+    NormalKnownVarPredictiveParams,
+    NormalKnownMeanPredictiveParams,
+    MvNormalKnownCovPredictiveParams,
+    MvNormalKnownMeanPredictiveParams,
+)
 
 import pymc as pm
 import numpy as np
 import numpy.typing as npt
-from types import SimpleNamespace
 from typing import Any
 
 @timer
@@ -17,7 +22,7 @@ def normal_variance(priors: tuple[float, float], variance: float, data: npt.NDAr
 
         idata = pm.sample()
 
-        return SimpleNamespace(
+        return NormalKnownVarPredictiveParams(
             loc = float(idata.posterior["mu"].mean()),
             scale = variance
         )
@@ -37,7 +42,7 @@ def normal_mean(priors: tuple[float, float], mean: float, data: npt.NDArray) -> 
 
         idata = pm.sample()
 
-        return SimpleNamespace(
+        return NormalKnownMeanPredictiveParams(
             df = float(idata.posterior["nu"].mean()),
             loc = mean,
             scale = float(idata.posterior["sigma"].mean())
@@ -69,7 +74,7 @@ def mvnormal_covariance(priors: tuple[npt.NDArray, npt.NDArray], covariance: npt
 
         idata = pm.sample(cores = 1)
 
-    return SimpleNamespace(
+    return MvNormalKnownCovPredictiveParams(
         mean = idata.posterior["mu"].mean(axis = 0).mean(axis = 0).values,
         cov = covariance
     )
@@ -103,7 +108,7 @@ def mvnormal_mean(priors: tuple[float, float, float], mean: npt.NDArray, data: n
             cores = 1
         )
 
-    return SimpleNamespace(
+    return MvNormalKnownMeanPredictiveParams(
         df = idata.posterior.nu.mean().values,
         loc = mean,
         shape = idata.posterior.scale.mean(axis = 0).mean(axis = 0).values

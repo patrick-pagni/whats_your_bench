@@ -1,9 +1,14 @@
 from utils import timer
+from conjugate_priors import (
+    NormalKnownVarPredictiveParams,
+    NormalKnownMeanPredictiveParams,
+    MvNormalKnownCovPredictiveParams,
+    MvNormalKnownMeanPredictiveParams,
+)
 
 import os
 import numpy.typing as npt
 from cmdstanpy import CmdStanModel
-from types import SimpleNamespace
 from typing import Any
 
 @timer
@@ -24,7 +29,7 @@ def normal_variance(priors: tuple[float, float], variance: float, data: npt.NDAr
 
     fit = model.sample(data = stan_data)
 
-    return SimpleNamespace(
+    return NormalKnownVarPredictiveParams(
         loc = fit.mu.mean(axis = 0),
         scale = variance
     )
@@ -47,7 +52,7 @@ def normal_mean(priors: tuple[float, float], mean: float, data: npt.NDArray) -> 
 
     fit = model.sample(data = stan_data)
 
-    return SimpleNamespace(
+    return NormalKnownMeanPredictiveParams(
         df = fit.nu.mean(axis = 0),
         loc = mean,
         scale = fit.sigma.mean(axis = 0)
@@ -71,7 +76,7 @@ def mvnormal_covariance(priors: tuple[npt.NDArray, npt.NDArray], covariance: npt
     }
 
     fit = model.sample(data = stan_data)
-    return SimpleNamespace(
+    return MvNormalKnownCovPredictiveParams(
         mean = fit.mu.mean(axis = 0),
         cov = covariance
     )
@@ -95,7 +100,7 @@ def mvnormal_mean(priors: tuple[float, float, float], mean: npt.NDArray, data: n
     }
 
     fit = model.sample(data = stan_data)
-    return SimpleNamespace(
+    return MvNormalKnownMeanPredictiveParams(
         df = fit.nu.mean(),
         loc = mean,
         shape = fit.Psi.mean(axis = 0)
