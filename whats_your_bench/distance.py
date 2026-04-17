@@ -1,4 +1,5 @@
 from .utils import timer
+from config import PDF_GRID_SIZE, KS_SAMPLE_SIZE
 
 import numpy as np
 import numpy.typing as npt
@@ -26,7 +27,7 @@ def _generate_array(start: npt.NDArray, end: npt.NDArray, n: int, reverse: bool 
 
     return np.array([np.array(x) for x in list(zip(*axes))])
 
-def _adaptive_pdf_grid(start: npt.NDArray, end: npt.NDArray, n: int = 1000) -> npt.NDArray:
+def _adaptive_pdf_grid(start: npt.NDArray, end: npt.NDArray, n: int = PDF_GRID_SIZE) -> npt.NDArray:
     """Generate a non-uniform grid concentrated near the center, suitable for PDF evaluation."""
     mean = np.array([start, end]).mean(axis = 0)
 
@@ -60,8 +61,8 @@ def kl_divergence(p: Any, q: Any, support_lim: list) -> tuple[Any, float]:
 @timer
 def ks_test(p: Any, q: Any, support_lim: float | npt.NDArray, random_state: int, method: str = "all") -> tuple[Any, float]:
 
-    pred = p.rvs(100, random_state = random_state)
-    true = q.rvs(100, random_state = random_state)
+    pred = p.rvs(KS_SAMPLE_SIZE, random_state = random_state)
+    true = q.rvs(KS_SAMPLE_SIZE, random_state = random_state)
 
     if len(true.shape) == 1:
         true = true.reshape(-1, 1)
